@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 public class Utility
 {
   static final String EBCDIC = "CP1047";
+  private static final int LINESIZE = 16;
 
   public static final int[] ebc2asc = new int[256];
   public static final int[] asc2ebc = new int[256];
@@ -37,8 +38,9 @@ public class Utility
     byte[] newBuffer = new byte[buffer.length];
     int ptr = 0;
     for (int i = 0; i < buffer.length; i++)
-      if (buffer[i] != 0)     // suppress nulls
+      if (buffer[i] != 0)                       // suppress nulls
         newBuffer[ptr++] = (byte) ebc2asc[buffer[i] & 0xFF];
+
     return new String (newBuffer);
   }
 
@@ -112,35 +114,31 @@ public class Utility
 
   public static String toHex (byte[] b, int offset, int length, boolean ebcdic)
   {
-    final int lineSize = 16;
     StringBuilder text = new StringBuilder ();
 
     try
     {
-      for (int ptr = offset, max = offset + length; ptr < max; ptr += lineSize)
+      for (int ptr = offset, max = offset + length; ptr < max; ptr += LINESIZE)
       {
         final StringBuilder hexLine = new StringBuilder ();
         final StringBuilder textLine = new StringBuilder ();
-        for (int linePtr = 0; linePtr < lineSize; linePtr++)
+        for (int linePtr = 0; linePtr < LINESIZE; linePtr++)
         {
           if (ptr + linePtr >= max)
             break;
+
           int val = b[ptr + linePtr] & 0xFF;
           hexLine.append (String.format ("%02X ", val));
+
           if (ebcdic)
-          {
             if (val < 0x40 || val == 0xFF)
               textLine.append ('.');
             else
               textLine.append (new String (b, ptr + linePtr, 1, EBCDIC));
-          }
+          else if (val < 0x20 || val >= 0xF0)
+            textLine.append ('.');
           else
-          {
-            if (val < 0x20 || val >= 0xF0)
-              textLine.append ('.');
-            else
-              textLine.append (new String (b, ptr + linePtr, 1));
-          }
+            textLine.append (new String (b, ptr + linePtr, 1));
         }
         text.append (String.format ("%04X  %-48s %s%n", ptr, hexLine.toString (),
                                     textLine.toString ()));
@@ -150,8 +148,10 @@ public class Utility
     {
       e.printStackTrace ();
     }
+
     if (text.length () > 0)
       text.deleteCharAt (text.length () - 1);
+
     return text.toString ();
   }
 
