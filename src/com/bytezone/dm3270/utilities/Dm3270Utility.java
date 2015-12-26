@@ -2,9 +2,10 @@ package com.bytezone.dm3270.utilities;
 
 import java.io.UnsupportedEncodingException;
 
-public class Utility
+public class Dm3270Utility
 {
   public static final String EBCDIC = "CP1047";
+  public static final String FROG = "CP1047";
   private static final int LINESIZE = 16;
 
   public static final int[] ebc2asc = new int[256];
