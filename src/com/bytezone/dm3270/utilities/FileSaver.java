@@ -12,8 +12,7 @@ public class FileSaver
     return Paths.get (userHome, "dm3270", "files", siteFolderName);
   }
 
-  // Determine the path of the folder in which the dataset should be stored
-  public static String getSaveFolderName (Path homePath, String datasetName)
+  public static String[] getSegments (String datasetName)
   {
     // convert the dataset name into a potential path of folder names
     String[] segments = datasetName.split ("\\.");      // split into segments
@@ -26,12 +25,25 @@ public class FileSaver
       segments[last] = segments[last].substring (0, pos);
     }
 
+    return segments;
+  }
+
+  // Determine the path of the folder in which the dataset should be stored
+  public static String getSaveFolderName (Path homePath, String datasetName)
+  {
+    //    System.out.println ("Dataset name: " + datasetName);
+    String[] segments = getSegments (datasetName);
+    //    System.out.println ("Segments:");
+    //    for (String segment : segments)
+    //      System.out.println ("==>" + segment);
+
     int nextSegment = 0;
     String buildPath = homePath.toString ();
 
     while (nextSegment < segments.length)
     {
       Path nextPath = Paths.get (buildPath, segments[nextSegment++]);
+      //      System.out.println ("checking: " + nextPath);
       if (Files.notExists (nextPath) || !Files.isDirectory (nextPath))
       {
         System.out.println ("Best path is: " + buildPath);
@@ -41,7 +53,6 @@ public class FileSaver
       buildPath = nextPath.toString ();
 
       Path filePath = Paths.get (buildPath, datasetName);
-      //      System.out.println (filePath);
       if (Files.exists (filePath))
       {
         System.out.println ("File exists at: " + buildPath);
