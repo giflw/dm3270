@@ -46,7 +46,7 @@ public class FileSaver
       //      System.out.println ("checking: " + nextPath);
       if (Files.notExists (nextPath) || !Files.isDirectory (nextPath))
       {
-        System.out.println ("Best path is: " + buildPath);
+        //        System.out.println ("Best path is: " + buildPath);
         return buildPath;
       }
 
@@ -55,11 +55,11 @@ public class FileSaver
       Path filePath = Paths.get (buildPath, datasetName);
       if (Files.exists (filePath))
       {
-        System.out.println ("File exists at: " + buildPath);
+        //        System.out.println ("File exists at: " + buildPath);
         return buildPath;
       }
     }
-    System.out.println ("Not found, using: " + buildPath);
+    //    System.out.println ("Not found, using: " + buildPath);
     return buildPath;
   }
 }
