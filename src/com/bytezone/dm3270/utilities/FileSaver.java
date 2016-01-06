@@ -12,6 +12,12 @@ public class FileSaver
     return Paths.get (userHome, "dm3270", "files", siteFolderName);
   }
 
+  public static Path getHomePath (Site site)
+  {
+    String userHome = System.getProperty ("user.home");
+    return Paths.get (userHome, "dm3270", "files", site.getFolder ());
+  }
+
   public static String[] getSegments (String datasetName)
   {
     // convert the dataset name into a potential path of folder names
