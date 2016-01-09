@@ -1,6 +1,11 @@
 package com.bytezone.dm3270.utilities;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 public class Dm3270Utility
 {
@@ -75,6 +80,7 @@ public class Dm3270Utility
   {
     buffer[offset++] = (byte) ((value >> 8) & 0xFF);
     buffer[offset++] = (byte) (value & 0xFF);
+
     return offset;
   }
 
@@ -90,6 +96,7 @@ public class Dm3270Utility
     buffer[offset++] = (byte) ((value >> 16) & 0xFF);
     buffer[offset++] = (byte) ((value >> 8) & 0xFF);
     buffer[offset++] = (byte) (value & 0xFF);
+
     return offset;
   }
 
@@ -198,5 +205,13 @@ public class Dm3270Utility
   {
     for (StackTraceElement ste : Thread.currentThread ().getStackTrace ())
       System.out.println (ste);
+  }
+
+  public static boolean showAlert (String message)
+  {
+    Alert alert = new Alert (AlertType.ERROR, message);
+    alert.getDialogPane ().setHeaderText (null);
+    Optional<ButtonType> result = alert.showAndWait ();
+    return (result.isPresent () && result.get () == ButtonType.OK);
   }
 }
