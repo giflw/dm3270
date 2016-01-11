@@ -14,6 +14,11 @@ public class FileSaver
 
   public static Path getHomePath (Site site)
   {
+    if (site == null)
+    {
+      System.out.println ("Site is null");
+      return null;
+    }
     String userHome = System.getProperty ("user.home");
     return Paths.get (userHome, "dm3270", "files", site.getFolder ());
   }
