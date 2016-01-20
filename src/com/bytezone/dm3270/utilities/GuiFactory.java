@@ -15,8 +15,8 @@ public class GuiFactory
 {
   public HBox getHBox ()
   {
-    HBox hbox = new HBox ();
-    hbox.setSpacing (15);
+    HBox hbox = new HBox (15);          // spacing
+    //    hbox.setSpacing (15);
     hbox.setPadding (new Insets (10, 10, 10, 10));    // trbl
     hbox.setAlignment (Pos.CENTER_LEFT);
     return hbox;
@@ -24,8 +24,8 @@ public class GuiFactory
 
   public VBox getVBox ()
   {
-    VBox vbox = new VBox ();
-    vbox.setSpacing (15);
+    VBox vbox = new VBox (15);          // spacing
+    //    vbox.setSpacing (15);
     vbox.setPadding (new Insets (10, 10, 10, 10));    // trbl
     return vbox;
   }
