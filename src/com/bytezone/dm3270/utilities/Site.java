@@ -26,7 +26,7 @@ public class Site
     this.url.setText (url);
     this.port.setText (port == 23 && name.isEmpty () ? "" : port + "");
     this.extended.setSelected (extended);
-    this.model.setText (model + "");
+    this.model.setText (model == 2 && name.isEmpty () ? "" : model + "");
     this.plugins.setSelected (plugins);
     this.folder.setText (folder);
   }
