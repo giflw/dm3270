@@ -5,24 +5,28 @@ import javafx.scene.control.TextField;
 
 public class Site
 {
+  // make these StringProperty and use a table
   public final TextField name = new TextField ();
   public final TextField url = new TextField ();
   public final TextField port = new TextField ();
   public final CheckBox extended = new CheckBox ();
+  public final TextField model = new TextField ();
   public final CheckBox plugins = new CheckBox ();
   public final TextField folder = new TextField ();
 
-  private final TextField[] textFieldList = { name, url, port, null, null, folder };
+  private final TextField[] textFieldList =
+      { name, url, port, null, model, null, folder };
   private final CheckBox[] checkBoxFieldList =
-      { null, null, null, extended, plugins, null };
+      { null, null, null, extended, null, plugins, null };
 
-  public Site (String name, String url, int port, boolean extended, boolean plugins,
-      String folder)
+  public Site (String name, String url, int port, boolean extended, int model,
+      boolean plugins, String folder)
   {
     this.name.setText (name);
     this.url.setText (url);
     this.port.setText (port == 23 && name.isEmpty () ? "" : port + "");
     this.extended.setSelected (extended);
+    this.model.setText (model + "");
     this.plugins.setSelected (plugins);
     this.folder.setText (folder);
   }
@@ -61,6 +65,27 @@ public class Site
   public boolean getExtended ()
   {
     return extended.isSelected ();
+  }
+
+  public int getModel ()
+  {
+    try
+    {
+      int modelValue = Integer.parseInt (model.getText ());
+      if (modelValue < 2 || modelValue > 5)
+      {
+        System.out.println ("Invalid model value: " + model.getText ());
+        model.setText ("2");
+        modelValue = 2;
+      }
+      return modelValue;
+    }
+    catch (NumberFormatException e)
+    {
+      System.out.println ("Invalid model value: " + model.getText ());
+      model.setText ("2");
+      return 2;
+    }
   }
 
   public boolean getPlugins ()
