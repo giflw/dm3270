@@ -44,7 +44,7 @@ public class Dm3270Utility
     byte[] newBuffer = new byte[buffer.length];
     int ptr = 0;
     for (int i = 0; i < buffer.length; i++)
-      if (buffer[i] != 0)                       // suppress nulls
+      if (buffer[i] != 0)                                       // suppress nulls
         newBuffer[ptr++] = (byte) ebc2asc[buffer[i] & 0xFF];
 
     return new String (newBuffer);
@@ -59,8 +59,7 @@ public class Dm3270Utility
   {
     try
     {
-      int last = offset + length;
-      if (last > buffer.length)
+      if (offset + length > buffer.length)
         length = buffer.length - offset - 1;
       return new String (buffer, offset, length, EBCDIC);
     }
@@ -69,6 +68,24 @@ public class Dm3270Utility
       e.printStackTrace ();
       return "FAIL";
     }
+  }
+
+  public static String getSanitisedString (byte[] buffer, int offset, int length)
+  {
+    if (offset + length > buffer.length)
+      length = buffer.length - offset - 1;
+    return getString (sanitise (buffer, offset, length));
+  }
+
+  private static byte[] sanitise (byte[] buffer, int offset, int length)
+  {
+    byte[] cleanBuffer = new byte[length];
+    for (int i = 0; i < length; i++)
+    {
+      int b = buffer[offset++] & 0xFF;
+      cleanBuffer[i] = b < 0x40 ? 0x40 : (byte) b;
+    }
+    return cleanBuffer;
   }
 
   public static int unsignedShort (byte[] buffer, int offset)
