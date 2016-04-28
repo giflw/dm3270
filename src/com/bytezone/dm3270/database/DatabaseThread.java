@@ -1,0 +1,637 @@
+package com.bytezone.dm3270.database;
+
+import static com.bytezone.dm3270.database.DatabaseRequest.Command.LIST;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
+
+import com.bytezone.dm3270.database.DatabaseRequest.Result;
+
+public class DatabaseThread extends Thread
+{
+  private static final String INSERT_DATASET =
+      "insert into DATASETS (VOLUME, DEVICE, CATALOG, "
+          + "TRACKS, CYLINDERS, PERCENT, EXTENTS, DSORG, RECFM, LRECL, BLKSIZE,"
+          + "CREATED, EXPIRES, REFERRED, NAME) "
+          + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  private static final String INSERT_MEMBER =
+      "insert into MEMBERS (ID, SIZE, INIT, MOD, VV, MM, CREATED, "
+          + "CHANGED, DATASET, NAME) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  private static final String UPDATE_DATASET = "update DATASETS set VOLUME=?, DEVICE=?, "
+      + "CATALOG=?, TRACKS=?, CYLINDERS=?, PERCENT=?, EXTENTS=?, DSORG=?, RECFM=?, "
+      + "LRECL=?, BLKSIZE=?, CREATED=?, EXPIRES=?, REFERRED=? where NAME=?";
+
+  private static final String UPDATE_MEMBER =
+      "update MEMBERS set ID=?, SIZE=?, INIT=?, MOD=?, VV=?, MM=?, CREATED=?, "
+          + "CHANGED=? where DATASET=? and NAME=?";
+
+  private Connection connection;
+  private final BlockingQueue<DatabaseRequest> queue;
+  private boolean cancelled;
+  private final String databaseName;
+
+  private PreparedStatement ps1;
+  private PreparedStatement ps2;
+  private PreparedStatement ps3;
+  private PreparedStatement ps4;
+
+  public DatabaseThread (String databaseName, BlockingQueue<DatabaseRequest> queue)
+  {
+    this.databaseName = databaseName;
+
+    try
+    {
+      Class.forName ("org.sqlite.JDBC");     // add sqlite JDBC Driver to DriverManager
+      Path path = Paths.get (System.getProperty ("user.home"), "dm3270", "databases",
+                             databaseName);
+      String connectionName = "jdbc:sqlite:" + path.toString ();
+      connection = DriverManager.getConnection (connectionName);
+      connection.setAutoCommit (true);
+    }
+    catch (ClassNotFoundException e)
+    {
+      e.printStackTrace ();
+    }
+    catch (SQLException e)
+    {
+      e.printStackTrace ();
+    }
+
+    this.queue = queue;
+  }
+
+  @Override
+  public void run ()
+  {
+    while (!cancelled)
+    {
+      try
+      {
+        DatabaseRequest request = queue.take ();
+
+        request.result = Result.FAILURE;
+        request.databaseName = databaseName;
+
+        if (request instanceof DatasetRequest)
+          process ((DatasetRequest) request);
+        else if (request instanceof MemberRequest)
+          process ((MemberRequest) request);
+        else
+          process (request);
+
+        request.initiator.processResult (request);
+      }
+      catch (InterruptedException e)
+      {
+        Thread.currentThread ().interrupt ();     // preserve the message
+        System.out.println ("interrupted");
+        cancelled = true;
+      }
+    }
+
+    try
+    {
+      connection.close ();
+    }
+    catch (SQLException e)
+    {
+      e.printStackTrace ();
+    }
+  }
+
+  private void process (DatabaseRequest request)
+  {
+    switch (request.command)
+    {
+      case OPEN:
+        if (create (request))                       // create if not already there
+          request.result = Result.SUCCESS;
+        break;
+
+      case DROP:
+        if (drop (request))
+          request.result = Result.SUCCESS;
+        break;
+
+      case CREATE:
+        if (drop (request) && create (request))
+          request.result = Result.SUCCESS;
+        break;
+
+      case CLOSE:
+        cancelled = true;
+        request.result = Result.SUCCESS;
+        break;
+
+      default:
+        System.out.printf ("Unnown database request: %s%n", request);
+        break;
+    }
+  }
+
+  private void process (DatasetRequest request)
+  {
+    Optional<Dataset> optDataset = findDataset (request.datasetName);
+
+    switch (request.command)
+    {
+      case ADD:
+        if (!optDataset.isPresent () && insertDataset (request.dataset))
+          request.result = Result.SUCCESS;
+        break;
+
+      case UPDATE:
+        if (optDataset.isPresent ())
+        {
+          if (updateDataset (request.dataset))
+            request.result = Result.SUCCESS;
+        }
+        else
+        {
+          if (insertDataset (request.dataset))
+            request.result = Result.SUCCESS;
+        }
+        break;
+
+      case MODIFY:
+        if (optDataset.isPresent () && updateDataset (request.dataset))
+          request.result = Result.SUCCESS;
+        break;
+
+      case DELETE:
+        if (optDataset.isPresent () && deleteDataset (optDataset.get ()))
+          request.result = Result.SUCCESS;
+        break;
+
+      case FIND:
+        if (optDataset.isPresent ())
+        {
+          request.dataset = optDataset.get ();
+          request.result = Result.SUCCESS;
+        }
+        break;
+
+      case LIST:
+        if (createDatasetList (request))
+          request.result = Result.SUCCESS;
+        break;
+
+      default:
+        System.out.printf ("Unnown dataset request: %s%n", request);
+        break;
+    }
+  }
+
+  private void process (MemberRequest request)
+  {
+    Optional<Member> optMember = null;
+    if (request.command != LIST)
+      optMember = findMember (request.member.dataset, request.member.getName ());
+
+    switch (request.command)
+    {
+      case ADD:
+        if (!optMember.isPresent () && insertMember (request.member))
+          request.result = Result.SUCCESS;
+        break;
+
+      case UPDATE:
+        if (optMember.isPresent ())
+        {
+          if (updateMember (request.member))
+            request.result = Result.SUCCESS;
+        }
+        else
+        {
+          if (insertMember (request.member))
+            request.result = Result.SUCCESS;
+        }
+        break;
+
+      case MODIFY:
+        if (optMember.isPresent () && updateMember (request.member))
+          request.result = Result.SUCCESS;
+        break;
+
+      case DELETE:
+        if (optMember.isPresent () && deleteMember (optMember.get ()))
+          request.result = Result.SUCCESS;
+        break;
+
+      case FIND:
+        if (optMember.isPresent ())
+        {
+          request.member = optMember.get ();
+          request.result = Result.SUCCESS;
+        }
+
+      case LIST:
+        if (createMemberList (request))
+          request.result = Result.SUCCESS;
+        break;
+
+      default:
+        System.out.printf ("Unnown member request: %s%n", request);
+        break;
+    }
+  }
+
+  private boolean drop (DatabaseRequest request)
+  {
+    try
+    {
+      Statement stmt = connection.createStatement ();
+      stmt.executeUpdate ("drop table if exists DATASETS");
+      stmt.close ();
+
+      stmt = connection.createStatement ();
+      stmt.executeUpdate ("drop table if exists MEMBERS");
+      stmt.close ();
+
+      return true;
+    }
+    catch (SQLException e)
+    {
+      return false;
+    }
+  }
+
+  private boolean create (DatabaseRequest request)
+  {
+    try
+    {
+      Statement stmt = connection.createStatement ();
+
+      String sql = "create table if not exists DATASETS ("     //
+          + "NAME           TEXT NOT NULL,"      //
+
+          // mainframe details
+          + "VOLUME         TEXT         ,"      // FUSRxx
+          + "DEVICE         TEXT         ,"      // 3390
+          + "CATALOG        TEXT         ,"      // CATALOG.USER.UCAT
+
+          + "CREATED        DATE         ,"      //
+          + "EXPIRES        DATE         ,"      //
+          + "REFERRED       DATE         ,"      //
+
+          + "TRACKS         INT          ,"      //
+          + "CYLINDERS      INT          ,"      //
+          + "PERCENT        INT          ,"      //
+          + "EXTENTS        INT          ,"      //
+
+          + "DSORG          TEXT         ,"      // PO, PS
+          + "RECFM          TEXT         ,"      // FB, VB
+          + "LRECL          INT          ,"      //
+          + "BLKSIZE        INT          ,"      //
+
+          // PC details
+          + "FILENAME       TEXT         ,"      // local filename (?)
+          + "DOWNLOADED     DATE         ,"      // downloaded date/time
+          + "CREATED2       DATE         ,"      // created date when downloaded
+          + "REFERRED2      DATE         ,"      // referred date when downloaded
+          + "ENCODING       TEXT         ,"      // ascii/ebcdic
+          + "STRUCTURE      TEXT         ,"      // cr/reclen/ravel/rdw etc
+
+          + "PRIMARY KEY (NAME)"                 //
+          + ") WITHOUT ROWID";
+
+      stmt.executeUpdate (sql);
+      stmt.close ();
+
+      stmt = connection.createStatement ();
+
+      sql = "create table if not exists MEMBERS ("      //
+          + "DATASET        TEXT NOT NULL,"      //
+          + "NAME           TEXT NOT NULL,"      //
+
+          // mainframe details
+          + "SIZE           INT          ,"      //
+          + "INIT           INT          ,"      //
+          + "MOD            INT          ,"      //
+          + "VV             INT          ,"      //
+          + "MM             INT          ,"      //
+          + "ID             TEXT         ,"      //
+          + "CREATED        DATE         ,"      //
+          + "CHANGED        DATE         ,"      //
+
+          // PC details
+          + "FILENAME       TEXT         ,"      // local filename (?)
+          + "DOWNLOADED     DATE         ,"      // downloaded date/time
+          + "CREATED2       DATE         ,"      // created date when downloaded
+          + "CHANGED2       DATE         ,"      // changed date when downloaded
+          + "ENCODING       TEXT         ,"      // ascii/ebcdic
+          + "STRUCTURE      TEXT         ,"      // cr/reclen/ravel/rdw etc
+
+          + "FOREIGN KEY (DATASET) REFERENCES DATASETS (NAME),"
+          + "PRIMARY KEY (DATASET, NAME)"                   //
+          + ") WITHOUT ROWID";
+
+      stmt.executeUpdate (sql);
+      stmt.close ();
+
+      return true;
+    }
+    catch (Exception e)
+    {
+      System.err.println (e.getClass ().getName () + ": " + e.getMessage ());
+      return false;
+    }
+  }
+
+  private boolean createDatasetList (DatasetRequest request)
+  {
+    request.datasets = new ArrayList<> ();
+    try
+    {
+      Statement stmt = connection.createStatement ();
+
+      String query = "select * from DATASETS ";
+      int pos = request.datasetName.indexOf ('*');
+
+      if (pos < 0)
+        query += "where NAME='" + request.datasetName + "'";
+      else if (pos > 0)
+      {
+        String from = request.datasetName.substring (0, pos);
+        String to = from + "Z";
+        query += "where NAME>='" + from + "' and NAME<='" + to + "'";
+      }
+
+      ResultSet rs = stmt.executeQuery (query);
+      while (rs.next ())
+        request.datasets.add (createDataset (rs));
+
+      return true;
+    }
+    catch (SQLException e)
+    {
+      System.err.println (e.getClass ().getName () + ": " + e.getMessage ());
+      return false;
+    }
+  }
+
+  private boolean createMemberList (MemberRequest request)
+  {
+    request.members = new ArrayList<> ();
+    Optional<Dataset> optDataset = findDataset (request.datasetName);
+    if (!optDataset.isPresent ())
+      return false;
+    Dataset dataset = optDataset.get ();
+
+    try
+    {
+      Statement stmt = connection.createStatement ();
+
+      String query = "select * from MEMBERS where DATASET='" + request.datasetName + "'";
+      int pos = request.memberName.indexOf ('*');
+
+      if (pos > 0)
+      {
+        String from = request.memberName.substring (0, pos);
+        String to = from + "Z";
+        query += "where NAME>='" + from + "' and NAME<='" + to + "'";
+      }
+
+      ResultSet rs = stmt.executeQuery (query);
+      while (rs.next ())
+        request.members.add (createMember (rs, dataset));
+
+      return true;
+    }
+    catch (SQLException e)
+    {
+      System.err.println (e.getClass ().getName () + ": " + e.getMessage ());
+      return false;
+    }
+  }
+
+  private Optional<Dataset> findDataset (String datasetName)
+  {
+    try
+    {
+      Statement stmt = connection.createStatement ();
+      ResultSet rs =
+          stmt.executeQuery ("SELECT * FROM DATASETS where NAME = '" + datasetName + "'");
+      if (rs.next ())
+        return Optional.of (createDataset (rs));
+    }
+    catch (SQLException e)
+    {
+      System.err.println (e.getClass ().getName () + ": " + e.getMessage ());
+    }
+    return Optional.empty ();
+  }
+
+  private Optional<Member> findMember (Dataset dataset, String memberName)
+  {
+    try
+    {
+      Statement stmt = connection.createStatement ();
+      ResultSet rs = stmt.executeQuery ("select * from MEMBERS where DATASET='"
+          + dataset.getName () + "' and NAME='" + memberName + "'");
+
+      if (rs.next ())
+      {
+        Optional<Dataset> optDataset = findDataset (dataset.getName ());
+        if (optDataset.isPresent ())
+          dataset = optDataset.get ();        // replace the parameter we were given
+
+        return Optional.of (createMember (rs, dataset));
+      }
+    }
+    catch (SQLException e)
+    {
+      System.err.println (e.getClass ().getName () + ": " + e.getMessage ());
+    }
+    return Optional.empty ();
+  }
+
+  private boolean updateDataset (Dataset dataset)
+  {
+    try
+    {
+      if (ps3 == null)
+        ps3 = connection.prepareStatement (UPDATE_DATASET);
+
+      setDatasetStatement (ps3, dataset);
+      ps3.executeUpdate ();
+
+      return true;
+    }
+    catch (SQLException e)
+    {
+      return false;
+    }
+  }
+
+  private boolean updateMember (Member member)
+  {
+    try
+    {
+      if (ps4 == null)
+        ps4 = connection.prepareStatement (UPDATE_MEMBER);
+
+      setMemberStatement (ps4, member);
+      ps4.executeUpdate ();
+
+      return true;
+    }
+    catch (SQLException e)
+    {
+      return false;
+    }
+  }
+
+  private boolean deleteDataset (Dataset dataset)
+  {
+    try
+    {
+      connection.setAutoCommit (false);
+
+      // delete members
+      Statement stmt = connection.createStatement ();
+      stmt.executeUpdate ("delete from MEMBERS where DATASET='" + dataset.getName ()
+          + "'");
+      stmt.close ();
+
+      // delete dataset
+      stmt = connection.createStatement ();
+      stmt.executeUpdate ("delete from DATASETS where NAME='" + dataset.getName () + "'");
+      stmt.close ();
+
+      connection.commit ();
+      connection.setAutoCommit (true);
+
+      return true;
+    }
+    catch (SQLException e)
+    {
+      try
+      {
+        connection.rollback ();
+      }
+      catch (SQLException e1)
+      {
+        e1.printStackTrace ();
+      }
+      return false;
+    }
+  }
+
+  private boolean deleteMember (Member member)
+  {
+    try
+    {
+      Statement stmt = connection.createStatement ();
+      stmt.executeUpdate ("delete from MEMEBERS where DATASET='"
+          + member.dataset.getName () + "' and NAME='" + member.getName () + "'");
+      stmt.close ();
+      return true;
+    }
+    catch (SQLException e)
+    {
+      return false;
+    }
+  }
+
+  private boolean insertDataset (Dataset dataset)
+  {
+    try
+    {
+      if (ps1 == null)
+        ps1 = connection.prepareStatement (INSERT_DATASET);
+
+      setDatasetStatement (ps1, dataset);
+      ps1.executeUpdate ();
+
+      return true;
+    }
+    catch (SQLException e)
+    {
+      return false;
+    }
+  }
+
+  private boolean insertMember (Member member)
+  {
+    try
+    {
+      if (ps2 == null)
+        ps2 = connection.prepareStatement (INSERT_MEMBER);
+
+      setMemberStatement (ps2, member);
+      ps2.executeUpdate ();
+
+      return true;
+    }
+    catch (SQLException e)
+    {
+      return false;
+    }
+  }
+
+  private void setDatasetStatement (PreparedStatement ps, Dataset dataset)
+      throws SQLException
+  {
+    ps.setString (1, dataset.volume);
+    ps.setString (2, dataset.device);
+    ps.setString (3, dataset.catalog);
+    ps.setInt (4, dataset.tracks);
+    ps.setInt (5, dataset.cylinders);
+    ps.setInt (6, dataset.percent);
+    ps.setInt (7, dataset.extents);
+    ps.setString (8, dataset.dsorg);
+    ps.setString (9, dataset.recfm);
+    ps.setInt (10, dataset.lrecl);
+    ps.setInt (11, dataset.blksize);
+    ps.setDate (12, dataset.createdSQL == null ? null : dataset.createdSQL);
+    ps.setDate (13, dataset.expiresSQL == null ? null : dataset.expiresSQL);
+    ps.setDate (14, dataset.referredSQL == null ? null : dataset.referredSQL);
+    ps.setString (15, dataset.getName ());
+  }
+
+  private void setMemberStatement (PreparedStatement ps, Member member)
+      throws SQLException
+  {
+    ps.setString (1, member.id);
+    ps.setInt (2, member.size);
+    ps.setInt (3, member.init);
+    ps.setInt (4, member.mod);
+    ps.setInt (5, member.vv);
+    ps.setInt (6, member.mm);
+    ps.setDate (7, member.createdSQL == null ? null : member.createdSQL);
+    ps.setDate (8, member.changedSQL == null ? null : member.changedSQL);
+    ps.setString (9, member.dataset.getName ());
+    ps.setString (10, member.getName ());
+  }
+
+  private Dataset createDataset (ResultSet rs) throws SQLException
+  {
+    Dataset dataset = new Dataset (rs.getString ("name"));
+    dataset.setSpace (rs.getInt ("tracks"), rs.getInt ("cylinders"),
+                      rs.getInt ("extents"), rs.getInt ("percent"));
+    dataset.setDisposition (rs.getString ("dsorg"), rs.getString ("recfm"),
+                            rs.getInt ("lrecl"), rs.getInt ("blksize"));
+    dataset.setLocation (rs.getString ("volume"), rs.getString ("device"),
+                         rs.getString ("catalog"));
+    dataset.setDates (rs.getDate ("created"), rs.getDate ("expires"),
+                      rs.getDate ("referred"));
+    return dataset;
+  }
+
+  private Member createMember (ResultSet rs, Dataset dataset) throws SQLException
+  {
+    Member member = new Member (dataset, rs.getString ("name"));
+    member.setID (rs.getString ("id"));
+    member.setSize (rs.getInt ("size"), rs.getInt ("init"), rs.getInt ("mod"),
+                    rs.getInt ("vv"), rs.getInt ("mm"));
+    member.setDates (rs.getDate ("created"), rs.getDate ("changed"));
+    return member;
+  }
+}
