@@ -59,6 +59,11 @@ public class Dataset
     this.catalog = catalog;
   }
 
+  public void setDevice (String device)
+  {
+    this.device = device;
+  }
+
   public void setSpace (int tracks, int cylinders, int extents, int percent)
   {
     this.tracks = tracks;
@@ -94,19 +99,33 @@ public class Dataset
   {
     try
     {
-      if (!created.isEmpty ())
+      if (!created.trim ().isEmpty ())
       {
         this.created = fmt1.parse (created);
         this.createdSQL = new java.sql.Date (this.created.getTime ());
       }
-
-      if (!expires.isEmpty ())
+    }
+    catch (ParseException e)
+    {
+      //      e.printStackTrace ();
+      System.out.printf ("Invalid date: [%s]%n", created);
+    }
+    try
+    {
+      if (!expires.trim ().isEmpty ())
       {
         this.expires = fmt1.parse (expires);
         this.expiresSQL = new java.sql.Date (this.expires.getTime ());
       }
-
-      if (!referred.isEmpty ())
+    }
+    catch (ParseException e)
+    {
+      //      e.printStackTrace ();
+      System.out.printf ("Invalid date: [%s]%n", expires);
+    }
+    try
+    {
+      if (!referred.trim ().isEmpty ())
       {
         this.referred = fmt1.parse (referred);
         this.referredSQL = new java.sql.Date (this.referred.getTime ());
@@ -114,7 +133,8 @@ public class Dataset
     }
     catch (ParseException e)
     {
-      e.printStackTrace ();
+      //      e.printStackTrace ();
+      System.out.printf ("Invalid date: [%s]%n", referred);
     }
   }
 

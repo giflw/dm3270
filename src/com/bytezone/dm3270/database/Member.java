@@ -70,13 +70,20 @@ public class Member
   {
     try
     {
-      if (!created.isEmpty ())
+      if (!created.trim ().isEmpty ())
       {
         this.created = fmt1.parse (created);
         this.createdSQL = new java.sql.Date (this.created.getTime ());
       }
-
-      if (!changed.isEmpty ())
+    }
+    catch (ParseException e)
+    {
+      //      e.printStackTrace ();
+      System.out.printf ("Invalid date: [%s]%n", created);
+    }
+    try
+    {
+      if (!changed.trim ().isEmpty ())
       {
         this.changed = fmt2.parse (changed);
         this.changedSQL = new java.sql.Date (this.changed.getTime ());
@@ -84,7 +91,8 @@ public class Member
     }
     catch (ParseException e)
     {
-      e.printStackTrace ();
+      //      e.printStackTrace ();
+      System.out.printf ("Invalid date: [%s]%n", changed);
     }
   }
 
