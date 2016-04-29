@@ -6,7 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 
 import com.bytezone.dm3270.database.DatabaseRequest.Result;
@@ -40,6 +42,8 @@ public class DatabaseThread extends Thread
   private PreparedStatement ps2;
   private PreparedStatement ps3;
   private PreparedStatement ps4;
+
+  private final Map<String, CacheEntry> cache = new TreeMap<> ();
 
   public DatabaseThread (String databaseName, BlockingQueue<DatabaseRequest> queue)
   {
@@ -254,6 +258,8 @@ public class DatabaseThread extends Thread
       stmt.executeUpdate ("drop table if exists MEMBERS");
       stmt.close ();
 
+      cache.clear ();
+
       return true;
     }
     catch (SQLException e)
@@ -365,7 +371,15 @@ public class DatabaseThread extends Thread
 
       ResultSet rs = stmt.executeQuery (query);
       while (rs.next ())
-        request.datasets.add (createDataset (rs));
+      {
+        Dataset dataset = createDataset (rs);
+        request.datasets.add (dataset);
+        CacheEntry cacheEntry = cache.get (dataset.getName ());
+        if (cacheEntry == null)
+          cache.put (dataset.getName (), new CacheEntry (dataset));
+        else
+          cacheEntry.replace (dataset);       // is this necessary?
+      }
 
       return true;
     }

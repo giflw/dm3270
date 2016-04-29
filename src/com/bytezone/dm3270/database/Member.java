@@ -10,7 +10,7 @@ public class Member
   private static final SimpleDateFormat fmt2 =
       new SimpleDateFormat ("yyyy/MM/dd HH:mm:ss");
 
-  private final String name;
+  final String name;
   Dataset dataset;
 
   String id;
@@ -25,21 +25,28 @@ public class Member
   java.sql.Date createdSQL;
   java.sql.Date changedSQL;
 
+  // ---------------------------------------------------------------------------------//
+  // Constructor
+  // ---------------------------------------------------------------------------------//
+
   public Member (Dataset dataset, String name)
   {
     this.dataset = dataset;
     this.name = name;
   }
 
-  public String getName ()
-  {
-    return name;
-  }
+  // ---------------------------------------------------------------------------------//
+  // Id
+  // ---------------------------------------------------------------------------------//
 
   public void setID (String id)
   {
     this.id = id;
   }
+
+  // ---------------------------------------------------------------------------------//
+  // Size
+  // ---------------------------------------------------------------------------------//
 
   public void setSize (int size)
   {
@@ -54,6 +61,10 @@ public class Member
     this.vv = vv;
     this.mm = mm;
   }
+
+  // ---------------------------------------------------------------------------------//
+  // Dates
+  // ---------------------------------------------------------------------------------//
 
   public void setDates (java.sql.Date createdSQL, java.sql.Date changedSQL)
   {
@@ -94,6 +105,26 @@ public class Member
       //      e.printStackTrace ();
       System.out.printf ("Invalid date: [%s]%n", changed);
     }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  // Merge
+  // ---------------------------------------------------------------------------------//
+
+  public void merge (Member oldMember)
+  {
+    assert dataset.getName ().equals (oldMember.dataset.getName ());
+
+    System.out.println ("merging members: " + name);
+  }
+
+  // ---------------------------------------------------------------------------------//
+  // Utility Methods
+  // ---------------------------------------------------------------------------------//
+
+  public String getName ()
+  {
+    return name;
   }
 
   @Override

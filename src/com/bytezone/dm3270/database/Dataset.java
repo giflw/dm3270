@@ -8,7 +8,7 @@ public class Dataset
 {
   private static final SimpleDateFormat fmt1 = new SimpleDateFormat ("yyyy/MM/dd");
 
-  private final String name;
+  final String name;
 
   String volume;
   String device;
@@ -32,15 +32,18 @@ public class Dataset
   java.sql.Date expiresSQL;
   java.sql.Date referredSQL;
 
+  // ---------------------------------------------------------------------------------//
+  // Constructor
+  // ---------------------------------------------------------------------------------//
+
   public Dataset (String name)
   {
     this.name = name;
   }
 
-  public String getName ()
-  {
-    return name;
-  }
+  // ---------------------------------------------------------------------------------//
+  // Location
+  // ---------------------------------------------------------------------------------//
 
   public void setLocation (String volume, String device, String catalog)
   {
@@ -64,6 +67,10 @@ public class Dataset
     this.device = device;
   }
 
+  // ---------------------------------------------------------------------------------//
+  // Space
+  // ---------------------------------------------------------------------------------//
+
   public void setSpace (int tracks, int cylinders, int extents, int percent)
   {
     this.tracks = tracks;
@@ -72,6 +79,10 @@ public class Dataset
     this.percent = percent;
   }
 
+  // ---------------------------------------------------------------------------------//
+  // Disposition
+  // ---------------------------------------------------------------------------------//
+
   public void setDisposition (String dsorg, String recfm, int lrecl, int blksize)
   {
     this.dsorg = dsorg;
@@ -79,6 +90,10 @@ public class Dataset
     this.lrecl = lrecl;
     this.blksize = blksize;
   }
+
+  // ---------------------------------------------------------------------------------//
+  // Dates
+  // ---------------------------------------------------------------------------------//
 
   public void setDates (java.sql.Date createdSQL, java.sql.Date expiresSQL,
       java.sql.Date referredSQL)
@@ -107,7 +122,6 @@ public class Dataset
     }
     catch (ParseException e)
     {
-      //      e.printStackTrace ();
       System.out.printf ("Invalid date: [%s]%n", created);
     }
     try
@@ -120,7 +134,6 @@ public class Dataset
     }
     catch (ParseException e)
     {
-      //      e.printStackTrace ();
       System.out.printf ("Invalid date: [%s]%n", expires);
     }
     try
@@ -133,9 +146,28 @@ public class Dataset
     }
     catch (ParseException e)
     {
-      //      e.printStackTrace ();
       System.out.printf ("Invalid date: [%s]%n", referred);
     }
+  }
+
+  // ---------------------------------------------------------------------------------//
+  // Merge
+  // ---------------------------------------------------------------------------------//
+
+  public void merge (Dataset oldDataset)
+  {
+    assert name.equals (oldDataset.name);
+
+    System.out.println ("merging dataset: " + name);
+  }
+
+  // ---------------------------------------------------------------------------------//
+  // Utility Methods
+  // ---------------------------------------------------------------------------------//
+
+  public String getName ()
+  {
+    return name;
   }
 
   public boolean isPartitioned ()
@@ -147,7 +179,7 @@ public class Dataset
   public String toString ()
   {
     return String
-        .format ("%-3s %-31s  %3d %3d  %-6s  %-6s  %3d " + " %3d  %-4s %4d %6d  %s %s %s",
+        .format ("%-3s %-31s  %3d %3d  %-6s  %-6s  %3d  %3d  %-4s %4d %6d  %s %s %s",
                  dsorg, name, tracks, cylinders, device, volume, extents, percent, recfm,
                  lrecl, blksize, catalog, fmt1.format (created), fmt1.format (referred));
   }
