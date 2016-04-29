@@ -66,17 +66,6 @@ public class Member
   // Dates
   // ---------------------------------------------------------------------------------//
 
-  public void setDates (java.sql.Date createdSQL, java.sql.Date changedSQL)
-  {
-    this.createdSQL = createdSQL;
-    if (createdSQL != null)
-      created = new Date (createdSQL.getTime ());
-
-    this.changedSQL = changedSQL;
-    if (changedSQL != null)
-      changed = new Date (changedSQL.getTime ());
-  }
-
   public void setDates (String created, String changed)
   {
     try
@@ -89,9 +78,9 @@ public class Member
     }
     catch (ParseException e)
     {
-      //      e.printStackTrace ();
-      System.out.printf ("Invalid date: [%s]%n", created);
+      System.out.printf ("Invalid created date: [%s]%n", created);
     }
+
     try
     {
       if (!changed.trim ().isEmpty ())
@@ -102,9 +91,19 @@ public class Member
     }
     catch (ParseException e)
     {
-      //      e.printStackTrace ();
-      System.out.printf ("Invalid date: [%s]%n", changed);
+      System.out.printf ("Invalid changed date: [%s]%n", changed);
     }
+  }
+
+  public void setDates (java.sql.Date createdSQL, java.sql.Date changedSQL)
+  {
+    this.createdSQL = createdSQL;
+    if (createdSQL != null)
+      created = new Date (createdSQL.getTime ());
+
+    this.changedSQL = changedSQL;
+    if (changedSQL != null)
+      changed = new Date (changedSQL.getTime ());
   }
 
   // ---------------------------------------------------------------------------------//

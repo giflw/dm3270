@@ -397,6 +397,7 @@ public class DatabaseThread extends Thread
     if (!optDataset.isPresent ())
       return false;
     Dataset dataset = optDataset.get ();
+    CacheEntry cacheEntry = cache.get (dataset.getName ());
 
     try
     {
@@ -414,7 +415,11 @@ public class DatabaseThread extends Thread
 
       ResultSet rs = stmt.executeQuery (query);
       while (rs.next ())
-        request.members.add (createMember (rs, dataset));
+      {
+        Member member = createMember (rs, dataset);
+        request.members.add (member);
+        cacheEntry.addMember (member);
+      }
 
       return true;
     }
@@ -433,7 +438,13 @@ public class DatabaseThread extends Thread
       ResultSet rs =
           stmt.executeQuery ("SELECT * FROM DATASETS where NAME = '" + datasetName + "'");
       if (rs.next ())
-        return Optional.of (createDataset (rs));
+      {
+        Dataset dataset = createDataset (rs);
+        CacheEntry cacheEntry = cache.get (dataset.name);
+        if (cacheEntry == null)
+          cache.put (dataset.name, new CacheEntry (dataset));
+        return Optional.of (dataset);
+      }
     }
     catch (SQLException e)
     {

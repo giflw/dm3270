@@ -95,6 +95,48 @@ public class Dataset
   // Dates
   // ---------------------------------------------------------------------------------//
 
+  public void setDates (String created, String expires, String referred)
+  {
+    try
+    {
+      if (!created.trim ().isEmpty ())
+      {
+        this.created = fmt1.parse (created);
+        this.createdSQL = new java.sql.Date (this.created.getTime ());
+      }
+    }
+    catch (ParseException e)
+    {
+      System.out.printf ("Invalid created date: [%s]%n", created);
+    }
+
+    try
+    {
+      if (!expires.trim ().isEmpty ())
+      {
+        this.expires = fmt1.parse (expires);
+        this.expiresSQL = new java.sql.Date (this.expires.getTime ());
+      }
+    }
+    catch (ParseException e)
+    {
+      System.out.printf ("Invalid expires date: [%s]%n", expires);
+    }
+
+    try
+    {
+      if (!referred.trim ().isEmpty ())
+      {
+        this.referred = fmt1.parse (referred);
+        this.referredSQL = new java.sql.Date (this.referred.getTime ());
+      }
+    }
+    catch (ParseException e)
+    {
+      System.out.printf ("Invalid referred date: [%s]%n", referred);
+    }
+  }
+
   public void setDates (java.sql.Date createdSQL, java.sql.Date expiresSQL,
       java.sql.Date referredSQL)
   {
@@ -108,46 +150,6 @@ public class Dataset
       expires = new Date (expiresSQL.getTime ());
     if (referredSQL != null)
       referred = new Date (referredSQL.getTime ());
-  }
-
-  public void setDates (String created, String expires, String referred)
-  {
-    try
-    {
-      if (!created.trim ().isEmpty ())
-      {
-        this.created = fmt1.parse (created);
-        this.createdSQL = new java.sql.Date (this.created.getTime ());
-      }
-    }
-    catch (ParseException e)
-    {
-      System.out.printf ("Invalid date: [%s]%n", created);
-    }
-    try
-    {
-      if (!expires.trim ().isEmpty ())
-      {
-        this.expires = fmt1.parse (expires);
-        this.expiresSQL = new java.sql.Date (this.expires.getTime ());
-      }
-    }
-    catch (ParseException e)
-    {
-      System.out.printf ("Invalid date: [%s]%n", expires);
-    }
-    try
-    {
-      if (!referred.trim ().isEmpty ())
-      {
-        this.referred = fmt1.parse (referred);
-        this.referredSQL = new java.sql.Date (this.referred.getTime ());
-      }
-    }
-    catch (ParseException e)
-    {
-      System.out.printf ("Invalid date: [%s]%n", referred);
-    }
   }
 
   // ---------------------------------------------------------------------------------//
