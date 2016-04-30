@@ -212,9 +212,9 @@ public class Dataset
 
   boolean differsFrom (Dataset other)
   {
-    //    System.out.println ("Comparing:");
-    //    System.out.println (this);
-    //    System.out.println (other);
+    System.out.println ("Comparing:");
+    System.out.println (this);
+    System.out.println (other);
 
     //    System.out.println ("checking space");
     if (other.tracks > 0 && tracks != other.tracks)
@@ -227,9 +227,9 @@ public class Dataset
       return true;
 
     //    System.out.println ("checking disposition");
-    if (other.dsorg != null && !dsorg.equals (other.dsorg))
+    if (other.dsorg != null && !other.dsorg.equals (dsorg))
       return true;
-    if (other.recfm != null && !recfm.equals (other.recfm))
+    if (other.recfm != null && !other.recfm.equals (recfm))
       return true;
     if (other.lrecl > 0 && lrecl != other.lrecl)
       return true;
@@ -237,11 +237,11 @@ public class Dataset
       return true;
 
     //    System.out.println ("checking location");
-    if (other.volume != null && !volume.equals (other.volume))
+    if (other.volume != null && !other.volume.equals (volume))
       return true;
-    if (other.device != null && !device.equals (other.device))
+    if (other.device != null && !other.device.equals (device))
       return true;
-    if (other.catalog != null && !catalog.equals (other.catalog))
+    if (other.catalog != null && !other.catalog.equals (catalog))
       return true;
 
     //    System.out.println ("checking dates");
@@ -264,7 +264,7 @@ public class Dataset
     if (expiresLong2 > 0 && expiresLong != expiresLong2)
       return true;
 
-    //    System.out.println ("identical");
+    System.out.println ("identical");
 
     return false;
   }

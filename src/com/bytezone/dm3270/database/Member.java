@@ -11,7 +11,7 @@ public class Member
       new SimpleDateFormat ("yyyy/MM/dd HH:mm:ss");
 
   final String name;
-  Dataset dataset;
+  final Dataset dataset;
 
   String id;
   int size;
@@ -114,12 +114,16 @@ public class Member
   {
     assert dataset.getName ().equals (other.dataset.getName ());
 
-    //    System.out.println ("merging members: " + name);
-
     if (other.size > 0)
+    {
+      //      System.out.printf ("Changing %d to %d%n", size, other.size);
       size = other.size;
+    }
     if (other.init > 0)
+    {
+      System.out.printf ("Changing %d to %d%n", init, other.init);
       init = other.init;
+    }
     if (other.mod > 0)
       mod = other.mod;
     if (other.vv > 0)
@@ -135,6 +139,7 @@ public class Member
       created = other.created;
       createdSQL = other.createdSQL;
     }
+
     if (other.changed != null)
     {
       changed = other.changed;
@@ -148,6 +153,10 @@ public class Member
 
   boolean differsFrom (Member other)
   {
+    System.out.println ("Comparing:");
+    System.out.println (this);
+    System.out.println (other);
+
     if (other.size > 0 && size != other.size)
       return true;
 
@@ -163,7 +172,7 @@ public class Member
     if (other.mm > 0 && mm != other.mm)
       return true;
 
-    if (other.id != null && !id.equals (other.id))
+    if (other.id != null && !other.id.equals (id))
       return true;
 
     long createdLong = created == null ? 0 : created.getTime ();
@@ -175,6 +184,8 @@ public class Member
     long changedLong2 = other.changed == null ? 0 : other.changed.getTime ();
     if (changedLong2 > 0 && changedLong != changedLong2)
       return true;
+
+    System.out.println ("identical");
 
     return false;
   }
@@ -193,8 +204,9 @@ public class Member
   {
     String createdText = created == null ? "" : fmt1.format (created);
     String changedText = changed == null ? "" : fmt2.format (changed);
+    String idText = id == null ? "" : id;
 
-    return String.format ("%-8s  %3d  %-8s %4d  %2d  %2d  %2d %s %s", name, size, id,
+    return String.format ("%-8s  %3d  %-8s %4d  %2d  %2d  %2d %s %s", name, size, idText,
                           init, mod, vv, mm, createdText, changedText);
   }
 }

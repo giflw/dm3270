@@ -38,10 +38,10 @@ public class DatabaseThread extends Thread
   private boolean cancelled;
   private final String databaseName;
 
-  private PreparedStatement ps1;
-  private PreparedStatement ps2;
-  private PreparedStatement ps3;
-  private PreparedStatement ps4;
+  //  private PreparedStatement ps1;
+  //  private PreparedStatement ps2;
+  //  private PreparedStatement ps3;
+  //  private PreparedStatement ps4;
 
   private final Map<String, CacheEntry> cache = new TreeMap<> ();
 
@@ -102,6 +102,7 @@ public class DatabaseThread extends Thread
     try
     {
       connection.close ();
+      System.out.println ("Connection closed");
     }
     catch (SQLException e)
     {
@@ -497,9 +498,9 @@ public class DatabaseThread extends Thread
       }
 
       //      System.out.println ("changed");
-      dataset.merge (currentDataset);
-      CacheEntry cacheEntry = cache.get (dataset.name);
-      cacheEntry.dataset = dataset;
+      currentDataset.merge (dataset);
+      dataset = currentDataset;
+      request.dataset = dataset;
     }
     else
     {
@@ -510,13 +511,18 @@ public class DatabaseThread extends Thread
 
     try
     {
-      System.out.println ("db");
-      if (ps3 == null)
-        ps3 = connection.prepareStatement (UPDATE_DATASET);
+      System.out.println ("Dataset modified:");
+      System.out.println (dataset);
+
+      PreparedStatement ps3 = connection.prepareStatement (UPDATE_DATASET);
 
       setDatasetStatement (ps3, dataset);
       ps3.executeUpdate ();
+      ps3.close ();
       request.databaseUpdated = true;
+      CacheEntry cacheEntry = cache.get (dataset.name);
+      cacheEntry.dataset = dataset;
+      connection.commit ();
 
       return true;
     }
@@ -529,6 +535,7 @@ public class DatabaseThread extends Thread
   private boolean updateMember (MemberRequest request)
   {
     Member member = request.member;
+    Optional<Dataset> optDataset = findDataset (member.dataset.name);
     Optional<Member> optMember = findMember (member.dataset, member.name);
     if (optMember.isPresent ())
     {
@@ -536,35 +543,44 @@ public class DatabaseThread extends Thread
       if (!currentMember.differsFrom (member))
         return true;
 
-      member.merge (currentMember);
-      CacheEntry cacheEntry = cache.get (member.dataset.name);
-      cacheEntry.putMember (member);                            // replace currentMember     
+      currentMember.merge (member);
+      //      CacheEntry cacheEntry = cache.get (member.dataset.name);
+      //      cacheEntry.putMember (member);                  // replace currentMember  
+      member = currentMember;
+      request.member = member;
+
+      Dataset dataset = optDataset.get ();
+      CacheEntry cacheEntry = cache.get (dataset.name);
+      cacheEntry.putMember (member);
     }
     else
     {
-      Optional<Dataset> optDataset = findDataset (member.dataset.name);
       if (optDataset.isPresent ())
       {
         Dataset dataset = optDataset.get ();
         CacheEntry cacheEntry = cache.get (dataset.name);
-        cacheEntry.addMember (member);
+        cacheEntry.putMember (member);
       }
       else
       {
         CacheEntry cacheEntry = new CacheEntry (member.dataset);
         cache.put (member.dataset.name, cacheEntry);
-        cacheEntry.addMember (member);
+        cacheEntry.putMember (member);
       }
     }
 
     try
     {
-      if (ps4 == null)
-        ps4 = connection.prepareStatement (UPDATE_MEMBER);
+      System.out.printf ("Member modified: %s(%s)%n", member.dataset.name, member.name);
+      System.out.println (member);
+
+      PreparedStatement ps4 = connection.prepareStatement (UPDATE_MEMBER);
 
       setMemberStatement (ps4, member);
       ps4.executeUpdate ();
+      ps4.close ();
       request.databaseUpdated = true;
+      connection.commit ();
 
       return true;
     }
@@ -630,11 +646,11 @@ public class DatabaseThread extends Thread
   {
     try
     {
-      if (ps1 == null)
-        ps1 = connection.prepareStatement (INSERT_DATASET);
+      PreparedStatement ps1 = connection.prepareStatement (INSERT_DATASET);
 
       setDatasetStatement (ps1, dataset);
       ps1.executeUpdate ();
+      ps1.close ();
 
       return true;
     }
@@ -649,11 +665,11 @@ public class DatabaseThread extends Thread
     Member member = request.member;
     try
     {
-      if (ps2 == null)
-        ps2 = connection.prepareStatement (INSERT_MEMBER);
+      PreparedStatement ps2 = connection.prepareStatement (INSERT_MEMBER);
 
       setMemberStatement (ps2, member);
       ps2.executeUpdate ();
+      ps2.close ();
 
       return true;
     }
