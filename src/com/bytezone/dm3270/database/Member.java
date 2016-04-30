@@ -110,11 +110,58 @@ public class Member
   // Merge
   // ---------------------------------------------------------------------------------//
 
-  public void merge (Member oldMember)
+  void merge (Member other)
   {
-    assert dataset.getName ().equals (oldMember.dataset.getName ());
+    assert dataset.getName ().equals (other.dataset.getName ());
 
     System.out.println ("merging members: " + name);
+
+    if (other.size > 0)
+      size = other.size;
+    if (other.init > 0)
+      init = other.init;
+    if (other.mod > 0)
+      mod = other.mod;
+    if (other.vv > 0)
+      vv = other.vv;
+    if (other.mm > 0)
+      mm = other.mm;
+
+    if (other.id != null)
+      id = other.id;
+
+    if (other.created != null)
+      created = other.created;
+    if (other.changed != null)
+      changed = other.changed;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  // Compare
+  // ---------------------------------------------------------------------------------//
+
+  boolean differsFrom (Member other)
+  {
+    if (other.size > 0 && size != other.size)
+      return true;
+    if (other.init > 0 && init != other.init)
+      return true;
+    if (other.mod > 0 && mod != other.mod)
+      return true;
+    if (other.vv > 0 && vv != other.vv)
+      return true;
+    if (other.mm > 0 && mm != other.mm)
+      return true;
+
+    if (other.id != null && !id.equals (other.size))
+      return true;
+
+    if (other.created != null && created != other.created)
+      return true;
+    if (other.changed != null && changed != other.changed)
+      return true;
+
+    return false;
   }
 
   // ---------------------------------------------------------------------------------//

@@ -196,7 +196,7 @@ public class DatabaseThread extends Thread
   {
     Optional<Member> optMember = null;
     if (request.command != LIST)
-      optMember = findMember (request.member.dataset, request.member.getName ());
+      optMember = findMember (request.member.dataset, request.member.name);
 
     switch (request.command)
     {
@@ -467,7 +467,11 @@ public class DatabaseThread extends Thread
         if (optDataset.isPresent ())
           dataset = optDataset.get ();        // replace the parameter we were given
 
-        return Optional.of (createMember (rs, dataset));
+        CacheEntry cacheEntry = cache.get (dataset.name);
+
+        Member member = createMember (rs, dataset);
+        cacheEntry.addMember (member);
+        return Optional.of (member);
       }
     }
     catch (SQLException e)
@@ -479,6 +483,23 @@ public class DatabaseThread extends Thread
 
   private boolean updateDataset (Dataset dataset)
   {
+    Optional<Dataset> optDataset = findDataset (dataset.name);
+    if (optDataset.isPresent ())
+    {
+      Dataset currentDataset = optDataset.get ();
+      if (!currentDataset.differsFrom (dataset))
+        return false;
+
+      dataset.merge (currentDataset);
+      CacheEntry cacheEntry = cache.get (dataset.name);
+      cacheEntry.dataset = dataset;
+    }
+    else
+    {
+      CacheEntry cacheEntry = new CacheEntry (dataset);
+      cache.put (dataset.name, cacheEntry);
+    }
+
     try
     {
       if (ps3 == null)
@@ -497,6 +518,34 @@ public class DatabaseThread extends Thread
 
   private boolean updateMember (Member member)
   {
+    Optional<Member> optMember = findMember (member.dataset, member.name);
+    if (optMember.isPresent ())
+    {
+      Member currentMember = optMember.get ();
+      if (!currentMember.differsFrom (member))
+        return false;
+
+      member.merge (currentMember);
+      CacheEntry cacheEntry = cache.get (member.dataset.name);
+      cacheEntry.addMember (member);          // replace currentMember
+    }
+    else
+    {
+      Optional<Dataset> optDataset = findDataset (member.dataset.name);
+      if (optDataset.isPresent ())
+      {
+        Dataset dataset = optDataset.get ();
+        CacheEntry cacheEntry = cache.get (dataset.name);
+        cacheEntry.addMember (member);
+      }
+      else
+      {
+        CacheEntry cacheEntry = new CacheEntry (member.dataset);
+        cache.put (member.dataset.name, cacheEntry);
+        cacheEntry.addMember (member);
+      }
+    }
+
     try
     {
       if (ps4 == null)

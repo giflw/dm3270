@@ -156,11 +156,84 @@ public class Dataset
   // Merge
   // ---------------------------------------------------------------------------------//
 
-  public void merge (Dataset oldDataset)
+  void merge (Dataset other)
   {
-    assert name.equals (oldDataset.name);
+    assert name.equals (other.name);
 
     System.out.println ("merging dataset: " + name);
+
+    if (other.tracks > 0)
+      tracks = other.tracks;
+    if (other.cylinders > 0)
+      cylinders = other.cylinders;
+    if (other.extents > 0)
+      extents = other.extents;
+    if (other.percent > 0)
+      percent = other.percent;
+
+    if (other.dsorg != null)
+      dsorg = other.dsorg;
+    if (other.recfm != null)
+      recfm = other.recfm;
+    if (other.lrecl > 0)
+      lrecl = other.lrecl;
+    if (other.blksize > 0)
+      blksize = other.blksize;
+
+    if (other.volume != null)
+      volume = other.volume;
+    if (other.device != null)
+      device = other.device;
+    if (other.catalog != null)
+      catalog = other.catalog;
+
+    if (other.created != null)
+      created = other.created;
+    if (other.referred != null)
+      referred = other.referred;
+    if (other.expires != null)
+      expires = other.expires;
+  }
+
+  // ---------------------------------------------------------------------------------//
+  // Compare
+  // ---------------------------------------------------------------------------------//
+
+  boolean differsFrom (Dataset other)
+  {
+    if (other.tracks > 0 && tracks != other.tracks)
+      return true;
+    if (other.cylinders > 0 && cylinders != other.cylinders)
+      return true;
+    if (other.extents > 0 && extents != other.extents)
+      return true;
+    if (other.percent > 0 && percent != other.percent)
+      return true;
+
+    if (other.dsorg != null && dsorg != other.dsorg)
+      return true;
+    if (other.recfm != null && recfm != other.recfm)
+      return true;
+    if (other.lrecl > 0 && lrecl != other.lrecl)
+      return true;
+    if (other.blksize > 0 && blksize != other.blksize)
+      return true;
+
+    if (other.volume != null && volume != other.volume)
+      return true;
+    if (other.device != null && device != other.device)
+      return true;
+    if (other.catalog != null && catalog != other.catalog)
+      return true;
+
+    if (other.created != null && created != other.created)
+      return true;
+    if (other.referred != null && referred != other.referred)
+      return true;
+    if (other.expires != null && expires != other.expires)
+      return true;
+
+    return false;
   }
 
   // ---------------------------------------------------------------------------------//
