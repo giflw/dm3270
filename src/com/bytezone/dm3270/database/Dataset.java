@@ -212,9 +212,9 @@ public class Dataset
 
   boolean differsFrom (Dataset other)
   {
-    System.out.println ("Comparing:");
-    System.out.println (this);
-    System.out.println (other);
+    //    System.out.println ("Comparing:");
+    //    System.out.println (this);
+    //    System.out.println (other);
 
     //    System.out.println ("checking space");
     if (other.tracks > 0 && tracks != other.tracks)
@@ -264,7 +264,7 @@ public class Dataset
     if (expiresLong2 > 0 && expiresLong != expiresLong2)
       return true;
 
-    System.out.println ("identical");
+    //    System.out.println ("identical");
 
     return false;
   }

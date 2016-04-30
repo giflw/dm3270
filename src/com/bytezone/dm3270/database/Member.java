@@ -153,9 +153,9 @@ public class Member
 
   boolean differsFrom (Member other)
   {
-    System.out.println ("Comparing:");
-    System.out.println (this);
-    System.out.println (other);
+    //    System.out.println ("Comparing:");
+    //    System.out.println (this);
+    //    System.out.println (other);
 
     if (other.size > 0 && size != other.size)
       return true;
@@ -185,7 +185,7 @@ public class Member
     if (changedLong2 > 0 && changedLong != changedLong2)
       return true;
 
-    System.out.println ("identical");
+    //    System.out.println ("identical");
 
     return false;
   }

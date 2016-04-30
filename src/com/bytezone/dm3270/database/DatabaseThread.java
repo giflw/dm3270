@@ -485,26 +485,19 @@ public class DatabaseThread extends Thread
   private boolean updateDataset (DatasetRequest request)
   {
     Dataset dataset = request.dataset;
-    //    System.out.println ("update");
     Optional<Dataset> optDataset = findDataset (dataset.name);
     if (optDataset.isPresent ())
     {
-      //      System.out.println ("exists");
       Dataset currentDataset = optDataset.get ();
       if (!currentDataset.differsFrom (dataset))
-      {
-        //        System.out.println ("no change");
         return true;
-      }
 
-      //      System.out.println ("changed");
       currentDataset.merge (dataset);
       dataset = currentDataset;
       request.dataset = dataset;
     }
     else
     {
-      //      System.out.println ("new");
       CacheEntry cacheEntry = new CacheEntry (dataset);
       cache.put (dataset.name, cacheEntry);
     }
@@ -522,7 +515,6 @@ public class DatabaseThread extends Thread
       request.databaseUpdated = true;
       CacheEntry cacheEntry = cache.get (dataset.name);
       cacheEntry.dataset = dataset;
-      connection.commit ();
 
       return true;
     }
@@ -544,8 +536,6 @@ public class DatabaseThread extends Thread
         return true;
 
       currentMember.merge (member);
-      //      CacheEntry cacheEntry = cache.get (member.dataset.name);
-      //      cacheEntry.putMember (member);                  // replace currentMember  
       member = currentMember;
       request.member = member;
 
@@ -580,7 +570,6 @@ public class DatabaseThread extends Thread
       ps4.executeUpdate ();
       ps4.close ();
       request.databaseUpdated = true;
-      connection.commit ();
 
       return true;
     }
@@ -662,6 +651,44 @@ public class DatabaseThread extends Thread
 
   private boolean insertMember (MemberRequest request)
   {
+    Optional<Dataset> optDataset = findDataset (request.datasetName);
+    if (optDataset.isPresent ())
+    {
+      Dataset dataset = optDataset.get ();
+      if (dataset.dsorg == null)
+      {
+        dataset.dsorg = "PO";
+        String cmd = "update DATASETS set DSORG='PO' where NAME='" + dataset.name + "'";
+        try
+        {
+          Statement stmt = connection.createStatement ();
+          stmt.executeUpdate (cmd);
+          stmt.close ();
+        }
+        catch (SQLException e)
+        {
+          e.printStackTrace ();
+        }
+      }
+    }
+    else
+    {
+      Dataset dataset = new Dataset (request.datasetName);
+      dataset.dsorg = "PO";
+      String cmd =
+          "insert into DATASETS (NAME,DSORG) values ('" + dataset.name + "', 'PO')";
+      try
+      {
+        Statement stmt = connection.createStatement ();
+        stmt.executeUpdate (cmd);
+        stmt.close ();
+      }
+      catch (SQLException e)
+      {
+        e.printStackTrace ();
+      }
+    }
+
     Member member = request.member;
     try
     {
