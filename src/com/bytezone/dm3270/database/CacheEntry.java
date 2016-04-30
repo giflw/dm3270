@@ -15,7 +15,7 @@ public class CacheEntry
 
   public void addMember (Member member)
   {
-    assert dataset.isPartitioned ();
+    //    assert dataset.isPartitioned ();
 
     if (members == null)
     {
@@ -29,6 +29,13 @@ public class CacheEntry
         member.merge (oldMember);
       members.put (member.getName (), member);
     }
+  }
+
+  public void putMember (Member member)
+  {
+    if (members == null)
+      members = new TreeMap<String, Member> ();
+    members.put (member.getName (), member);
   }
 
   public void replace (Dataset dataset)

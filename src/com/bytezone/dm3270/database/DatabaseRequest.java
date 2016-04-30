@@ -28,6 +28,7 @@ public class DatabaseRequest
   public final Initiator initiator;
   public Result result;
   public String databaseName;
+  public boolean databaseUpdated;
 
   public DatabaseRequest (Initiator initiator, Command command)
   {
@@ -43,6 +44,7 @@ public class DatabaseRequest
     text.append (String.format ("Database ...... %s%n", databaseName));
     text.append (String.format ("Command ....... %s%n", command));
     text.append (String.format ("Result ........ %s%n", result));
+    text.append (String.format ("Updated ....... %s%n", databaseUpdated));
 
     return text.toString ();
   }

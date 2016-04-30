@@ -153,7 +153,7 @@ public class DatabaseThread extends Thread
       case UPDATE:
         if (optDataset.isPresent ())
         {
-          if (updateDataset (request.dataset))
+          if (updateDataset (request))
             request.result = Result.SUCCESS;
         }
         else
@@ -164,7 +164,7 @@ public class DatabaseThread extends Thread
         break;
 
       case MODIFY:
-        if (optDataset.isPresent () && updateDataset (request.dataset))
+        if (optDataset.isPresent () && updateDataset (request))
           request.result = Result.SUCCESS;
         break;
 
@@ -201,25 +201,25 @@ public class DatabaseThread extends Thread
     switch (request.command)
     {
       case ADD:
-        if (!optMember.isPresent () && insertMember (request.member))
+        if (!optMember.isPresent () && insertMember (request))
           request.result = Result.SUCCESS;
         break;
 
       case UPDATE:
         if (optMember.isPresent ())
         {
-          if (updateMember (request.member))
+          if (updateMember (request))
             request.result = Result.SUCCESS;
         }
         else
         {
-          if (insertMember (request.member))
+          if (insertMember (request))
             request.result = Result.SUCCESS;
         }
         break;
 
       case MODIFY:
-        if (optMember.isPresent () && updateMember (request.member))
+        if (optMember.isPresent () && updateMember (request))
           request.result = Result.SUCCESS;
         break;
 
@@ -470,7 +470,7 @@ public class DatabaseThread extends Thread
         CacheEntry cacheEntry = cache.get (dataset.name);
 
         Member member = createMember (rs, dataset);
-        cacheEntry.addMember (member);
+        cacheEntry.putMember (member);
         return Optional.of (member);
       }
     }
@@ -481,32 +481,42 @@ public class DatabaseThread extends Thread
     return Optional.empty ();
   }
 
-  private boolean updateDataset (Dataset dataset)
+  private boolean updateDataset (DatasetRequest request)
   {
+    Dataset dataset = request.dataset;
+    //    System.out.println ("update");
     Optional<Dataset> optDataset = findDataset (dataset.name);
     if (optDataset.isPresent ())
     {
+      //      System.out.println ("exists");
       Dataset currentDataset = optDataset.get ();
       if (!currentDataset.differsFrom (dataset))
-        return false;
+      {
+        //        System.out.println ("no change");
+        return true;
+      }
 
+      //      System.out.println ("changed");
       dataset.merge (currentDataset);
       CacheEntry cacheEntry = cache.get (dataset.name);
       cacheEntry.dataset = dataset;
     }
     else
     {
+      //      System.out.println ("new");
       CacheEntry cacheEntry = new CacheEntry (dataset);
       cache.put (dataset.name, cacheEntry);
     }
 
     try
     {
+      System.out.println ("db");
       if (ps3 == null)
         ps3 = connection.prepareStatement (UPDATE_DATASET);
 
       setDatasetStatement (ps3, dataset);
       ps3.executeUpdate ();
+      request.databaseUpdated = true;
 
       return true;
     }
@@ -516,18 +526,19 @@ public class DatabaseThread extends Thread
     }
   }
 
-  private boolean updateMember (Member member)
+  private boolean updateMember (MemberRequest request)
   {
+    Member member = request.member;
     Optional<Member> optMember = findMember (member.dataset, member.name);
     if (optMember.isPresent ())
     {
       Member currentMember = optMember.get ();
       if (!currentMember.differsFrom (member))
-        return false;
+        return true;
 
       member.merge (currentMember);
       CacheEntry cacheEntry = cache.get (member.dataset.name);
-      cacheEntry.addMember (member);          // replace currentMember
+      cacheEntry.putMember (member);                            // replace currentMember     
     }
     else
     {
@@ -553,6 +564,7 @@ public class DatabaseThread extends Thread
 
       setMemberStatement (ps4, member);
       ps4.executeUpdate ();
+      request.databaseUpdated = true;
 
       return true;
     }
@@ -632,8 +644,9 @@ public class DatabaseThread extends Thread
     }
   }
 
-  private boolean insertMember (Member member)
+  private boolean insertMember (MemberRequest request)
   {
+    Member member = request.member;
     try
     {
       if (ps2 == null)

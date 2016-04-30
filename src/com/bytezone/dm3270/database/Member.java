@@ -114,7 +114,7 @@ public class Member
   {
     assert dataset.getName ().equals (other.dataset.getName ());
 
-    System.out.println ("merging members: " + name);
+    //    System.out.println ("merging members: " + name);
 
     if (other.size > 0)
       size = other.size;
@@ -131,9 +131,15 @@ public class Member
       id = other.id;
 
     if (other.created != null)
+    {
       created = other.created;
+      createdSQL = other.createdSQL;
+    }
     if (other.changed != null)
+    {
       changed = other.changed;
+      changedSQL = other.changedSQL;
+    }
   }
 
   // ---------------------------------------------------------------------------------//
@@ -144,21 +150,30 @@ public class Member
   {
     if (other.size > 0 && size != other.size)
       return true;
+
     if (other.init > 0 && init != other.init)
       return true;
+
     if (other.mod > 0 && mod != other.mod)
       return true;
+
     if (other.vv > 0 && vv != other.vv)
       return true;
+
     if (other.mm > 0 && mm != other.mm)
       return true;
 
-    if (other.id != null && !id.equals (other.size))
+    if (other.id != null && !id.equals (other.id))
       return true;
 
-    if (other.created != null && created != other.created)
+    long createdLong = created == null ? 0 : created.getTime ();
+    long createdLong2 = other.created == null ? 0 : other.created.getTime ();
+    if (createdLong2 > 0 && createdLong != createdLong2)
       return true;
-    if (other.changed != null && changed != other.changed)
+
+    long changedLong = changed == null ? 0 : changed.getTime ();
+    long changedLong2 = other.changed == null ? 0 : other.changed.getTime ();
+    if (changedLong2 > 0 && changedLong != changedLong2)
       return true;
 
     return false;
@@ -176,11 +191,10 @@ public class Member
   @Override
   public String toString ()
   {
-    if (created != null && changed != null)
-      return String.format ("%-8s  %3d  %-8s %4d  %2d  %2d  %2d %s %s", name, size, id,
-                            init, mod, vv, mm, fmt1.format (created),
-                            fmt2.format (changed));
-    return String.format ("%-8s  %3d  %-8s %4d  %2d  %2d  %2d", name, size, id, init, mod,
-                          vv, mm);
+    String createdText = created == null ? "" : fmt1.format (created);
+    String changedText = changed == null ? "" : fmt2.format (changed);
+
+    return String.format ("%-8s  %3d  %-8s %4d  %2d  %2d  %2d %s %s", name, size, id,
+                          init, mod, vv, mm, createdText, changedText);
   }
 }

@@ -160,7 +160,7 @@ public class Dataset
   {
     assert name.equals (other.name);
 
-    System.out.println ("merging dataset: " + name);
+    //    System.out.println ("merging dataset: " + name);
 
     if (other.tracks > 0)
       tracks = other.tracks;
@@ -188,11 +188,22 @@ public class Dataset
       catalog = other.catalog;
 
     if (other.created != null)
+    {
       created = other.created;
+      createdSQL = other.createdSQL;
+    }
+
     if (other.referred != null)
+    {
       referred = other.referred;
+      referredSQL = other.referredSQL;
+    }
+
     if (other.expires != null)
+    {
       expires = other.expires;
+      expiresSQL = other.expiresSQL;
+    }
   }
 
   // ---------------------------------------------------------------------------------//
@@ -201,6 +212,11 @@ public class Dataset
 
   boolean differsFrom (Dataset other)
   {
+    //    System.out.println ("Comparing:");
+    //    System.out.println (this);
+    //    System.out.println (other);
+
+    //    System.out.println ("checking space");
     if (other.tracks > 0 && tracks != other.tracks)
       return true;
     if (other.cylinders > 0 && cylinders != other.cylinders)
@@ -210,28 +226,45 @@ public class Dataset
     if (other.percent > 0 && percent != other.percent)
       return true;
 
-    if (other.dsorg != null && dsorg != other.dsorg)
+    //    System.out.println ("checking disposition");
+    if (other.dsorg != null && !dsorg.equals (other.dsorg))
       return true;
-    if (other.recfm != null && recfm != other.recfm)
+    if (other.recfm != null && !recfm.equals (other.recfm))
       return true;
     if (other.lrecl > 0 && lrecl != other.lrecl)
       return true;
     if (other.blksize > 0 && blksize != other.blksize)
       return true;
 
-    if (other.volume != null && volume != other.volume)
+    //    System.out.println ("checking location");
+    if (other.volume != null && !volume.equals (other.volume))
       return true;
-    if (other.device != null && device != other.device)
+    if (other.device != null && !device.equals (other.device))
       return true;
-    if (other.catalog != null && catalog != other.catalog)
+    if (other.catalog != null && !catalog.equals (other.catalog))
       return true;
 
-    if (other.created != null && created != other.created)
+    //    System.out.println ("checking dates");
+
+    long createdLong = created == null ? 0 : created.getTime ();
+    long createdLong2 = other.created == null ? 0 : other.created.getTime ();
+    //    System.out.printf ("%d v %d%n", createdLong, createdLong2);
+    if (createdLong2 > 0 && createdLong != createdLong2)
       return true;
-    if (other.referred != null && referred != other.referred)
+
+    long referredLong = referred == null ? 0 : referred.getTime ();
+    long referredLong2 = other.referred == null ? 0 : other.referred.getTime ();
+    //    System.out.printf ("%d v %d%n", referredLong, referredLong2);
+    if (referredLong2 > 0 && referredLong != referredLong2)
       return true;
-    if (other.expires != null && expires != other.expires)
+
+    long expiresLong = expires == null ? 0 : expires.getTime ();
+    long expiresLong2 = other.expires == null ? 0 : other.expires.getTime ();
+    //    System.out.printf ("%d v %d%n", expiresLong, expiresLong2);
+    if (expiresLong2 > 0 && expiresLong != expiresLong2)
       return true;
+
+    //    System.out.println ("identical");
 
     return false;
   }
@@ -247,15 +280,25 @@ public class Dataset
 
   public boolean isPartitioned ()
   {
-    return dsorg.equals ("PO");
+    return dsorg != null && dsorg.equals ("PO");
   }
 
   @Override
   public String toString ()
   {
-    return String
-        .format ("%-3s %-31s  %3d %3d  %-6s  %-6s  %3d  %3d  %-4s %4d %6d  %s %s %s",
-                 dsorg, name, tracks, cylinders, device, volume, extents, percent, recfm,
-                 lrecl, blksize, catalog, fmt1.format (created), fmt1.format (referred));
+    String createdText = created == null ? "" : fmt1.format (created);
+    String referredText = referred == null ? "" : fmt1.format (referred);
+    String expiresText = expires == null ? "" : fmt1.format (expires);
+    String dsorgText = dsorg == null ? "" : dsorg;
+    String deviceText = device == null ? "" : device;
+    String volumeText = volume == null ? "" : volume;
+    String recfmText = recfm == null ? "" : recfm;
+    String catalogText = catalog == null ? "" : catalog;
+
+    return String.format (
+                          "%-3s %-31s  %3d %3d  %-6s  %-6s  %3d  %3d  %-4s %4d %6d  %s %s %s %s",
+                          dsorgText, name, tracks, cylinders, deviceText, volumeText,
+                          extents, percent, recfmText, lrecl, blksize, catalogText,
+                          createdText, referredText, expiresText);
   }
 }
