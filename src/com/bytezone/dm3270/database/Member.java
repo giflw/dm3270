@@ -115,19 +115,17 @@ public class Member
     assert dataset.getName ().equals (other.dataset.getName ());
 
     if (other.size > 0)
-    {
-      //      System.out.printf ("Changing %d to %d%n", size, other.size);
       size = other.size;
-    }
+
     if (other.init > 0)
-    {
-      System.out.printf ("Changing %d to %d%n", init, other.init);
       init = other.init;
-    }
+
     if (other.mod > 0)
       mod = other.mod;
+
     if (other.vv > 0)
       vv = other.vv;
+
     if (other.mm > 0)
       mm = other.mm;
 
@@ -184,8 +182,6 @@ public class Member
     long changedLong2 = other.changed == null ? 0 : other.changed.getTime ();
     if (changedLong2 > 0 && changedLong != changedLong2)
       return true;
-
-    //    System.out.println ("identical");
 
     return false;
   }

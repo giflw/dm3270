@@ -160,8 +160,6 @@ public class Dataset
   {
     assert name.equals (other.name);
 
-    //    System.out.println ("merging dataset: " + name);
-
     if (other.tracks > 0)
       tracks = other.tracks;
     if (other.cylinders > 0)
@@ -216,7 +214,6 @@ public class Dataset
     //    System.out.println (this);
     //    System.out.println (other);
 
-    //    System.out.println ("checking space");
     if (other.tracks > 0 && tracks != other.tracks)
       return true;
     if (other.cylinders > 0 && cylinders != other.cylinders)
@@ -226,7 +223,6 @@ public class Dataset
     if (other.percent > 0 && percent != other.percent)
       return true;
 
-    //    System.out.println ("checking disposition");
     if (other.dsorg != null && !other.dsorg.equals (dsorg))
       return true;
     if (other.recfm != null && !other.recfm.equals (recfm))
@@ -236,7 +232,6 @@ public class Dataset
     if (other.blksize > 0 && blksize != other.blksize)
       return true;
 
-    //    System.out.println ("checking location");
     if (other.volume != null && !other.volume.equals (volume))
       return true;
     if (other.device != null && !other.device.equals (device))
@@ -244,27 +239,20 @@ public class Dataset
     if (other.catalog != null && !other.catalog.equals (catalog))
       return true;
 
-    //    System.out.println ("checking dates");
-
     long createdLong = created == null ? 0 : created.getTime ();
     long createdLong2 = other.created == null ? 0 : other.created.getTime ();
-    //    System.out.printf ("%d v %d%n", createdLong, createdLong2);
     if (createdLong2 > 0 && createdLong != createdLong2)
       return true;
 
     long referredLong = referred == null ? 0 : referred.getTime ();
     long referredLong2 = other.referred == null ? 0 : other.referred.getTime ();
-    //    System.out.printf ("%d v %d%n", referredLong, referredLong2);
     if (referredLong2 > 0 && referredLong != referredLong2)
       return true;
 
     long expiresLong = expires == null ? 0 : expires.getTime ();
     long expiresLong2 = other.expires == null ? 0 : other.expires.getTime ();
-    //    System.out.printf ("%d v %d%n", expiresLong, expiresLong2);
     if (expiresLong2 > 0 && expiresLong != expiresLong2)
       return true;
-
-    //    System.out.println ("identical");
 
     return false;
   }

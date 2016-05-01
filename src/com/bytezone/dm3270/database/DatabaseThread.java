@@ -513,6 +513,7 @@ public class DatabaseThread extends Thread
       ps3.executeUpdate ();
       ps3.close ();
       request.databaseUpdated = true;
+
       CacheEntry cacheEntry = cache.get (dataset.name);
       cacheEntry.dataset = dataset;
 
@@ -541,7 +542,7 @@ public class DatabaseThread extends Thread
 
       Dataset dataset = optDataset.get ();
       CacheEntry cacheEntry = cache.get (dataset.name);
-      cacheEntry.putMember (member);
+      cacheEntry.putMember (currentMember);
     }
     else
     {
