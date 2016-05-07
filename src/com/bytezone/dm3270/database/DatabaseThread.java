@@ -34,14 +34,9 @@ public class DatabaseThread extends Thread
           + "CHANGED=? where DATASET=? and NAME=?";
 
   private Connection connection;
-  private final BlockingQueue<DatabaseRequest> queue;
+  private BlockingQueue<DatabaseRequest> queue;
   private boolean cancelled;
   private final String databaseName;
-
-  //  private PreparedStatement ps1;
-  //  private PreparedStatement ps2;
-  //  private PreparedStatement ps3;
-  //  private PreparedStatement ps4;
 
   private final Map<String, CacheEntry> cache = new TreeMap<> ();
 
@@ -57,17 +52,12 @@ public class DatabaseThread extends Thread
       String connectionName = "jdbc:sqlite:" + path.toString ();
       connection = DriverManager.getConnection (connectionName);
       connection.setAutoCommit (true);
+      this.queue = queue;
     }
-    catch (ClassNotFoundException e)
+    catch (ClassNotFoundException | SQLException e)
     {
       e.printStackTrace ();
     }
-    catch (SQLException e)
-    {
-      e.printStackTrace ();
-    }
-
-    this.queue = queue;
   }
 
   @Override
@@ -93,9 +83,9 @@ public class DatabaseThread extends Thread
       }
       catch (InterruptedException e)
       {
-        Thread.currentThread ().interrupt ();     // preserve the message
         System.out.println ("interrupted");
         cancelled = true;
+        Thread.currentThread ().interrupt ();     // preserve the message
       }
     }
 
