@@ -285,9 +285,8 @@ public class Dataset
     String catalogText = catalog == null ? "" : catalog;
 
     return String.format (
-                          "%-3s %-31s  %3d %3d  %-6s  %-6s  %3d  %3d  %-4s %4d %6d  %s %s %s %s",
-                          dsorgText, name, tracks, cylinders, deviceText, volumeText,
-                          extents, percent, recfmText, lrecl, blksize, catalogText,
-                          createdText, referredText, expiresText);
+        "%-3s %-31s  %3d %3d  %-6s  %-6s  %3d  %3d  %-4s %4d %6d  %s %s %s %s", dsorgText,
+        name, tracks, cylinders, deviceText, volumeText, extents, percent, recfmText,
+        lrecl, blksize, catalogText, createdText, referredText, expiresText);
   }
 }

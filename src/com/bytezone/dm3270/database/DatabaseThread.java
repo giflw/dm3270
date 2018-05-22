@@ -48,7 +48,7 @@ public class DatabaseThread extends Thread
     {
       Class.forName ("org.sqlite.JDBC");     // add sqlite JDBC Driver to DriverManager
       Path path = Paths.get (System.getProperty ("user.home"), "dm3270", "databases",
-                             databaseName);
+          databaseName);
       String connectionName = "jdbc:sqlite:" + path.toString ();
       connection = DriverManager.getConnection (connectionName);
       connection.setAutoCommit (true);
@@ -578,8 +578,8 @@ public class DatabaseThread extends Thread
 
       // delete members
       Statement stmt = connection.createStatement ();
-      stmt.executeUpdate ("delete from MEMBERS where DATASET='" + dataset.getName ()
-          + "'");
+      stmt.executeUpdate (
+          "delete from MEMBERS where DATASET='" + dataset.getName () + "'");
       stmt.close ();
 
       // delete dataset
@@ -736,13 +736,13 @@ public class DatabaseThread extends Thread
   {
     Dataset dataset = new Dataset (rs.getString ("name"));
     dataset.setSpace (rs.getInt ("tracks"), rs.getInt ("cylinders"),
-                      rs.getInt ("extents"), rs.getInt ("percent"));
+        rs.getInt ("extents"), rs.getInt ("percent"));
     dataset.setDisposition (rs.getString ("dsorg"), rs.getString ("recfm"),
-                            rs.getInt ("lrecl"), rs.getInt ("blksize"));
+        rs.getInt ("lrecl"), rs.getInt ("blksize"));
     dataset.setLocation (rs.getString ("volume"), rs.getString ("device"),
-                         rs.getString ("catalog"));
+        rs.getString ("catalog"));
     dataset.setDates (rs.getDate ("created"), rs.getDate ("expires"),
-                      rs.getDate ("referred"));
+        rs.getDate ("referred"));
     return dataset;
   }
 
@@ -751,7 +751,7 @@ public class DatabaseThread extends Thread
     Member member = new Member (dataset, rs.getString ("name"));
     member.setID (rs.getString ("id"));
     member.setSize (rs.getInt ("size"), rs.getInt ("init"), rs.getInt ("mod"),
-                    rs.getInt ("vv"), rs.getInt ("mm"));
+        rs.getInt ("vv"), rs.getInt ("mm"));
     member.setDates (rs.getDate ("created"), rs.getDate ("changed"));
     return member;
   }
