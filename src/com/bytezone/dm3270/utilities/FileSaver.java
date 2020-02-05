@@ -4,15 +4,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+// -----------------------------------------------------------------------------------//
 public class FileSaver
+// -----------------------------------------------------------------------------------//
 {
+  // ---------------------------------------------------------------------------------//
   public static Path getHomePath (String siteFolderName)
+  // ---------------------------------------------------------------------------------//
   {
     String userHome = System.getProperty ("user.home");
     return Paths.get (userHome, "dm3270", "files", siteFolderName);
   }
 
+  // ---------------------------------------------------------------------------------//
   public static Path getHomePath (Site site)
+  // ---------------------------------------------------------------------------------//
   {
     if (site == null)
     {
@@ -23,7 +29,9 @@ public class FileSaver
     return Paths.get (userHome, "dm3270", "files", site.getFolder ());
   }
 
+  // ---------------------------------------------------------------------------------//
   public static String[] getSegments (String datasetName)
+  // ---------------------------------------------------------------------------------//
   {
     // convert the dataset name into a potential path of folder names
     String[] segments = datasetName.split ("\\.");      // split into segments
@@ -40,7 +48,9 @@ public class FileSaver
   }
 
   // Determine the path of the folder in which the dataset should be stored
+  // ---------------------------------------------------------------------------------//
   public static String getSaveFolderName (Path homePath, String datasetName)
+  // ---------------------------------------------------------------------------------//
   {
     //    System.out.println ("Dataset name: " + datasetName);
     String[] segments = getSegments (datasetName);

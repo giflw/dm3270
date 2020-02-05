@@ -13,7 +13,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+// -----------------------------------------------------------------------------------//
 public abstract class PreferencesStage extends Stage
+// -----------------------------------------------------------------------------------//
 {
   protected final Preferences prefs;
   protected Button cancelButton, saveButton;
@@ -24,12 +26,16 @@ public abstract class PreferencesStage extends Stage
     TEXT, NUMBER, BOOLEAN
   }
 
+  // ---------------------------------------------------------------------------------//
   public PreferencesStage (Preferences prefs)
+  // ---------------------------------------------------------------------------------//
   {
     this.prefs = prefs;
   }
 
+  // ---------------------------------------------------------------------------------//
   protected Node buttons ()
+  // ---------------------------------------------------------------------------------//
   {
     HBox box = new HBox (10);
     saveButton = new Button ("Save");
@@ -41,10 +47,13 @@ public abstract class PreferencesStage extends Stage
     box.getChildren ().addAll (cancelButton, saveButton);
     box.setAlignment (Pos.BASELINE_CENTER);
     box.setPadding (new Insets (10, 10, 10, 10));    // trbl
+
     return box;
   }
 
+  // ---------------------------------------------------------------------------------//
   public VBox getHeadings ()
+  // ---------------------------------------------------------------------------------//
   {
     HBox hbox = new HBox ();
     hbox.setSpacing (5);
@@ -68,7 +77,9 @@ public abstract class PreferencesStage extends Stage
     return vbox;
   }
 
+  // ---------------------------------------------------------------------------------//
   public class PreferenceField
+  // ---------------------------------------------------------------------------------//
   {
     public final String heading;
     public final int width;
