@@ -20,9 +20,10 @@ public class GuiFactory
   // ---------------------------------------------------------------------------------//
   {
     HBox hbox = new HBox (15);                        // spacing
-    //    hbox.setSpacing (15);
+
     hbox.setPadding (new Insets (10, 10, 10, 10));    // trbl
     hbox.setAlignment (Pos.CENTER_LEFT);
+
     return hbox;
   }
 
@@ -31,8 +32,9 @@ public class GuiFactory
   // ---------------------------------------------------------------------------------//
   {
     VBox vbox = new VBox (15);                        // spacing
-    //    vbox.setSpacing (15);
+
     vbox.setPadding (new Insets (10, 10, 10, 10));    // trbl
+
     return vbox;
   }
 
@@ -41,9 +43,11 @@ public class GuiFactory
   // ---------------------------------------------------------------------------------//
   {
     Button button = new Button (name);
+
     button.setPrefWidth (width);
     vbox.getChildren ().add (button);
     button.setDisable (true);
+
     return button;
   }
 
@@ -52,9 +56,11 @@ public class GuiFactory
   // ---------------------------------------------------------------------------------//
   {
     Button button = new Button (name);
+
     button.setPrefWidth (width);
     hbox.getChildren ().add (button);
     button.setDisable (true);
+
     return button;
   }
 
@@ -63,9 +69,11 @@ public class GuiFactory
   // ---------------------------------------------------------------------------------//
   {
     TextArea textArea = new TextArea ();
+
     textArea.setEditable (false);
     textArea.setFont (Font.font ("Monospaced", 12));
     textArea.setPrefWidth (width);
+
     return textArea;
   }
 
@@ -74,8 +82,10 @@ public class GuiFactory
   // ---------------------------------------------------------------------------------//
   {
     Tab tab = new Tab ();
+
     tab.setText (name);
     tab.setContent (textArea);
+
     return tab;
   }
 
@@ -84,9 +94,11 @@ public class GuiFactory
   // ---------------------------------------------------------------------------------//
   {
     RadioButton button = new RadioButton (text);
+
     hbox.getChildren ().add (button);
     button.setToggleGroup (group);
     button.setDisable (true);
+
     return button;
   }
 
@@ -95,9 +107,11 @@ public class GuiFactory
   // ---------------------------------------------------------------------------------//
   {
     RadioButton button = new RadioButton (text);
+
     vbox.getChildren ().add (button);
     button.setToggleGroup (group);
     button.setDisable (true);
+
     return button;
   }
 }

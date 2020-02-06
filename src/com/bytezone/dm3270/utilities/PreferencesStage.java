@@ -38,12 +38,15 @@ public abstract class PreferencesStage extends Stage
   // ---------------------------------------------------------------------------------//
   {
     HBox box = new HBox (10);
+
     saveButton = new Button ("Save");
     saveButton.setDefaultButton (true);
+    saveButton.setPrefWidth (80);
+
     cancelButton = new Button ("Cancel");
     cancelButton.setCancelButton (true);
-    saveButton.setPrefWidth (80);
     cancelButton.setPrefWidth (80);
+
     box.getChildren ().addAll (cancelButton, saveButton);
     box.setAlignment (Pos.BASELINE_CENTER);
     box.setPadding (new Insets (10, 10, 10, 10));    // trbl
@@ -55,8 +58,8 @@ public abstract class PreferencesStage extends Stage
   public VBox getHeadings ()
   // ---------------------------------------------------------------------------------//
   {
-    HBox hbox = new HBox ();
-    hbox.setSpacing (5);
+    HBox hbox = new HBox (5);
+
     hbox.setPadding (new Insets (10, 5, 0, 5));    // trbl
 
     for (int i = 0; i < fields.size (); i++)
@@ -69,8 +72,8 @@ public abstract class PreferencesStage extends Stage
         heading.setAlignment (Pos.CENTER);
     }
 
-    VBox vbox = new VBox ();
-    vbox.setSpacing (5);
+    VBox vbox = new VBox (5);
+
     vbox.setPadding (new Insets (0, 15, 0, 15));    // trbl
     vbox.getChildren ().add (hbox);
 

@@ -86,6 +86,7 @@ public class Dm3270Utility
   {
     if (offset + length > buffer.length)
       length = buffer.length - offset - 1;
+
     return getString (sanitise (buffer, offset, length));
   }
 
@@ -99,6 +100,7 @@ public class Dm3270Utility
       int b = buffer[offset++] & 0xFF;
       cleanBuffer[i] = b < 0x40 ? 0x40 : (byte) b;
     }
+
     return cleanBuffer;
   }
 
@@ -247,6 +249,7 @@ public class Dm3270Utility
     StringBuilder text = new StringBuilder ();
     for (int i = 0; i < buffer.length; i++)
       text.append (String.format ("%02X ", buffer[i]));
+
     return text.toString ();
   }
 
@@ -259,6 +262,7 @@ public class Dm3270Utility
       text.append (String.format ("%02X ", (buffer[ptr] & 0xFF)));
     if (text.length () > 0)
       text.deleteCharAt (text.length () - 1);
+
     return text.toString ();
   }
 
@@ -277,6 +281,7 @@ public class Dm3270Utility
     Alert alert = new Alert (AlertType.ERROR, message);
     alert.getDialogPane ().setHeaderText (null);
     Optional<ButtonType> result = alert.showAndWait ();
+
     return (result.isPresent () && result.get () == ButtonType.OK);
   }
 }
