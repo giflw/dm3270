@@ -34,8 +34,9 @@ public abstract class DefaultTable<T> extends TableView<T>
     column.setCellValueFactory (new PropertyValueFactory<T, String> (propertyName));
     getColumns ().add (column);
 
-    if (justification == Justification.CENTER)
-      column.setStyle ("-fx-alignment: CENTER;");
+    //    if (justification == Justification.CENTER)
+    //      column.setStyle ("-fx-alignment: CENTER;");
+    setJustification (column, justification);
   }
 
   // NB propertyName must have a corresponding method xxxProperty() in T
@@ -47,6 +48,27 @@ public abstract class DefaultTable<T> extends TableView<T>
     column.setPrefWidth (width);
     column.setCellValueFactory (new PropertyValueFactory<T, Number> (propertyName));
     getColumns ().add (column);
-    column.setStyle ("-fx-alignment: CENTER-RIGHT;");
+    //    column.setStyle ("-fx-alignment: CENTER-RIGHT;");
+    setJustification (column, Justification.RIGHT);
+  }
+
+  // ---------------------------------------------------------------------------------//
+  private void setJustification (TableColumn<T, ?> column, Justification justification)
+  // ---------------------------------------------------------------------------------//
+  {
+    switch (justification)
+    {
+      case CENTER:
+        column.setStyle ("-fx-alignment: CENTER;");
+        break;
+
+      case RIGHT:
+        column.setStyle ("-fx-alignment: CENTER-RIGHT;");
+        break;
+
+      case LEFT:
+        column.setStyle ("-fx-alignment: CENTER-LEFT;");
+        break;
+    }
   }
 }
