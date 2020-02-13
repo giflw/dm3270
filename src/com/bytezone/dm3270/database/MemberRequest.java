@@ -2,7 +2,9 @@ package com.bytezone.dm3270.database;
 
 import java.util.List;
 
+// -----------------------------------------------------------------------------------//
 public class MemberRequest extends DatabaseRequest
+// -----------------------------------------------------------------------------------//
 {
   public Member member;
   public String memberName;
@@ -10,7 +12,9 @@ public class MemberRequest extends DatabaseRequest
   public String datasetName;
   public List<Member> members;
 
+  // ---------------------------------------------------------------------------------//
   public MemberRequest (Initiator initiator, Command command, Member member)
+  // ---------------------------------------------------------------------------------//
   {
     super (initiator, command);
     this.member = member;
@@ -18,8 +22,10 @@ public class MemberRequest extends DatabaseRequest
     this.memberName = member.getName ();
   }
 
+  // ---------------------------------------------------------------------------------//
   public MemberRequest (Initiator initiator, Command command, Dataset dataset,
       String memberName)
+  // ---------------------------------------------------------------------------------//
   {
     super (initiator, command);
     this.dataset = dataset;
@@ -27,8 +33,10 @@ public class MemberRequest extends DatabaseRequest
     this.memberName = memberName;
   }
 
+  // ---------------------------------------------------------------------------------//
   @Override
   public String toString ()
+  // ---------------------------------------------------------------------------------//
   {
     StringBuilder text = new StringBuilder ();
 

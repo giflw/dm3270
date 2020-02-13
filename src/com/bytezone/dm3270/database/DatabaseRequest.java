@@ -1,6 +1,8 @@
 package com.bytezone.dm3270.database;
 
+// -----------------------------------------------------------------------------------//
 public class DatabaseRequest
+// -----------------------------------------------------------------------------------//
 {
   public enum Command
   {
@@ -30,14 +32,18 @@ public class DatabaseRequest
   public String databaseName;
   public boolean databaseUpdated;
 
+  // ---------------------------------------------------------------------------------//
   public DatabaseRequest (Initiator initiator, Command command)
+  // ---------------------------------------------------------------------------------//
   {
     this.initiator = initiator;
     this.command = command;
   }
 
+  // ---------------------------------------------------------------------------------//
   @Override
   public String toString ()
+  // ---------------------------------------------------------------------------------//
   {
     StringBuilder text = new StringBuilder ();
 

@@ -4,7 +4,12 @@ import static com.bytezone.dm3270.database.DatabaseRequest.Command.LIST;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
@@ -13,7 +18,9 @@ import java.util.concurrent.BlockingQueue;
 
 import com.bytezone.dm3270.database.DatabaseRequest.Result;
 
+// -----------------------------------------------------------------------------------//
 public class DatabaseThread extends Thread
+// -----------------------------------------------------------------------------------//
 {
   private static final String INSERT_DATASET =
       "insert into DATASETS (VOLUME, DEVICE, CATALOG, "
@@ -40,7 +47,9 @@ public class DatabaseThread extends Thread
 
   private final Map<String, CacheEntry> cache = new TreeMap<> ();
 
+  // ---------------------------------------------------------------------------------//
   public DatabaseThread (String databaseName, BlockingQueue<DatabaseRequest> queue)
+  // ---------------------------------------------------------------------------------//
   {
     this.databaseName = databaseName;
 
@@ -60,8 +69,10 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   @Override
   public void run ()
+  // ---------------------------------------------------------------------------------//
   {
     while (!cancelled)
     {
@@ -100,7 +111,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private void process (DatabaseRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     switch (request.command)
     {
@@ -130,7 +143,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private void process (DatasetRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     Optional<Dataset> optDataset = findDataset (request.datasetName);
 
@@ -183,7 +198,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private void process (MemberRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     Optional<Member> optMember = null;
     if (request.command != LIST)
@@ -237,7 +254,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean drop (DatabaseRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     try
     {
@@ -259,7 +278,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean create (DatabaseRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     try
     {
@@ -341,7 +362,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean createDatasetList (DatasetRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     request.datasets = new ArrayList<> ();
     try
@@ -381,7 +404,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean createMemberList (MemberRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     request.members = new ArrayList<> ();
     Optional<Dataset> optDataset = findDataset (request.datasetName);
@@ -421,7 +446,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private Optional<Dataset> findDataset (String datasetName)
+  // ---------------------------------------------------------------------------------//
   {
     try
     {
@@ -444,7 +471,9 @@ public class DatabaseThread extends Thread
     return Optional.empty ();
   }
 
+  // ---------------------------------------------------------------------------------//
   private Optional<Member> findMember (Dataset dataset, String memberName)
+  // ---------------------------------------------------------------------------------//
   {
     try
     {
@@ -472,7 +501,9 @@ public class DatabaseThread extends Thread
     return Optional.empty ();
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean updateDataset (DatasetRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     Dataset dataset = request.dataset;
     Optional<Dataset> optDataset = findDataset (dataset.name);
@@ -515,7 +546,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean updateMember (MemberRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     Member member = request.member;
     Optional<Dataset> optDataset = findDataset (member.dataset.name);
@@ -570,7 +603,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean deleteDataset (Dataset dataset)
+  // ---------------------------------------------------------------------------------//
   {
     try
     {
@@ -606,7 +641,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean deleteMember (Member member)
+  // ---------------------------------------------------------------------------------//
   {
     try
     {
@@ -622,7 +659,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean insertDataset (Dataset dataset)
+  // ---------------------------------------------------------------------------------//
   {
     try
     {
@@ -640,7 +679,9 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private boolean insertMember (MemberRequest request)
+  // ---------------------------------------------------------------------------------//
   {
     Optional<Dataset> optDataset = findDataset (request.datasetName);
     if (optDataset.isPresent ())
@@ -697,8 +738,10 @@ public class DatabaseThread extends Thread
     }
   }
 
+  // ---------------------------------------------------------------------------------//
   private void setDatasetStatement (PreparedStatement ps, Dataset dataset)
       throws SQLException
+  // ---------------------------------------------------------------------------------//
   {
     ps.setString (1, dataset.volume);
     ps.setString (2, dataset.device);
@@ -717,8 +760,10 @@ public class DatabaseThread extends Thread
     ps.setString (15, dataset.getName ());
   }
 
+  // ---------------------------------------------------------------------------------//
   private void setMemberStatement (PreparedStatement ps, Member member)
       throws SQLException
+  // ---------------------------------------------------------------------------------//
   {
     ps.setString (1, member.id);
     ps.setInt (2, member.size);
@@ -732,7 +777,9 @@ public class DatabaseThread extends Thread
     ps.setString (10, member.getName ());
   }
 
+  // ---------------------------------------------------------------------------------//
   private Dataset createDataset (ResultSet rs) throws SQLException
+  // ---------------------------------------------------------------------------------//
   {
     Dataset dataset = new Dataset (rs.getString ("name"));
     dataset.setSpace (rs.getInt ("tracks"), rs.getInt ("cylinders"),
@@ -746,7 +793,9 @@ public class DatabaseThread extends Thread
     return dataset;
   }
 
+  // ---------------------------------------------------------------------------------//
   private Member createMember (ResultSet rs, Dataset dataset) throws SQLException
+  // ---------------------------------------------------------------------------------//
   {
     Member member = new Member (dataset, rs.getString ("name"));
     member.setID (rs.getString ("id"));
