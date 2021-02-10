@@ -78,6 +78,8 @@ public class DatabaseThread extends Thread
     {
       try
       {
+        if (queue == null)
+        	break;
         DatabaseRequest request = queue.take ();
 
         request.result = Result.FAILURE;
@@ -102,8 +104,10 @@ public class DatabaseThread extends Thread
 
     try
     {
-      connection.close ();
-      System.out.println ("Connection closed");
+      if (connection != null) {
+    	  connection.close ();
+    	  System.out.println ("Connection closed");
+      }
     }
     catch (SQLException e)
     {
