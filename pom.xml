@@ -2,12 +2,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.scort.terminal</groupId>
 	<artifactId>dm3270</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<scm>
 		<connection>scm:git:https://github.com/Neticoa/dm3270.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/Neticoa/dm3270.git</developerConnection>
 		<url>https://github.com/Neticoa/dm3270</url>
-		<tag>dm3270-1.0.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<distributionManagement>
 		<repository>
