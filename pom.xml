@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.scort.terminal</groupId>
@@ -11,6 +10,22 @@
 		<url>https://github.com/Neticoa/dm3270</url>
 		<tag>HEAD</tag>
 	</scm>
+	<distributionManagement>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>mis-releases</id>
+			<name>MIS Releases</name>
+			<url>http://private.neticoa.fr:50003/repository/mis-releases/</url>
+			<layout>default</layout>
+		</repository>
+		<snapshotRepository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>mis-snapshots</id>
+			<name>MIS Snapshots</name>
+			<url>http://private.neticoa.fr:50003/repository/mis-snapshots/</url>
+			<layout>default</layout>
+		</snapshotRepository>
+	</distributionManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.xerial</groupId>
