@@ -25,15 +25,16 @@ public class TerminalServer implements Runnable
   private volatile boolean running;
 
   private final BufferListener telnetListener;
-  private final boolean debug = false;
+  private boolean debug = false;
 
   // ---------------------------------------------------------------------------------//
-  public TerminalServer (String serverURL, int serverPort, BufferListener listener)
+  public TerminalServer (String serverURL, int serverPort, BufferListener listener, boolean debug)
   // ---------------------------------------------------------------------------------//
   {
     this.serverPort = serverPort;
     this.serverURL = serverURL;
     this.telnetListener = listener;
+    this.debug = debug;
   }
 
   // ---------------------------------------------------------------------------------//

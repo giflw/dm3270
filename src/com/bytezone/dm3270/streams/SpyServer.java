@@ -32,9 +32,10 @@ public class SpyServer implements Runnable
   private TelnetSocket serverTelnetSocket;
   private final Session session;
   private Screen screen;
-
+  private boolean debug;
+  
   // ---------------------------------------------------------------------------------//
-  public SpyServer (Site server, int clientPort, Session session, TelnetState telnetState)
+  public SpyServer (Site server, int clientPort, Session session, TelnetState telnetState, boolean debug)
   // ---------------------------------------------------------------------------------//
   {
     if (server == null)
@@ -50,6 +51,7 @@ public class SpyServer implements Runnable
     this.clientPort = clientPort;
     this.session = session;
     this.telnetState = telnetState;
+    this.debug = debug;
   }
 
   // ---------------------------------------------------------------------------------//
@@ -82,10 +84,10 @@ public class SpyServer implements Runnable
       // create two SocketListeners and link them to each other
       clientTelnetSocket =
           new TelnetSocket (Source.CLIENT, clientSocket, new TelnetListener (
-              Source.CLIENT, session, Console.Function.SPY, screen, telnetState));
+              Source.CLIENT, session, Console.Function.SPY, screen, telnetState), debug);
       serverTelnetSocket =
           new TelnetSocket (Source.SERVER, serverSocket, new TelnetListener (
-              Source.SERVER, session, Console.Function.SPY, screen, telnetState));
+              Source.SERVER, session, Console.Function.SPY, screen, telnetState), debug);
 
       // TelnetSocket.link() will connect both sockets to each other (bidirectional)
       serverTelnetSocket.link (clientTelnetSocket);

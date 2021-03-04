@@ -14,7 +14,7 @@ import com.bytezone.dm3270.utilities.Dm3270Utility;
 public class TelnetSocket implements Runnable
 // -----------------------------------------------------------------------------------//
 {
-  private static final boolean debug = false;
+  private static boolean debug = false;
 
   private static final boolean GENUINE = true;
   private static final boolean MITM = false;
@@ -45,7 +45,7 @@ public class TelnetSocket implements Runnable
   // the listener.
 
   // ---------------------------------------------------------------------------------//
-  public TelnetSocket (Source source, Socket socket, BufferListener listener)
+  public TelnetSocket (Source source, Socket socket, BufferListener listener, boolean debug)
       throws IOException
   // ---------------------------------------------------------------------------------//
   {
@@ -63,6 +63,7 @@ public class TelnetSocket implements Runnable
 
     this.inputStream = socket.getInputStream ();
     this.outputStream = socket.getOutputStream ();
+    this.debug = debug;
 
     if (debug)
     {

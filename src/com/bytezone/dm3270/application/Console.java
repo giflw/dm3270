@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
@@ -45,6 +46,7 @@ public class Console extends Application
   private ReplayStage replayStage;
   private MainframeStage mainframeStage;
   private PluginsStage pluginsStage;
+  private boolean debug;
 
   public enum Function
   {
@@ -56,12 +58,17 @@ public class Console extends Application
   {
     super.init ();
 
+    Parameters parameters = this.getParameters();
+    List<String> unnamed = parameters.getUnnamed();
+    if (unnamed.contains("debug"))
+    	debug = true;
+    	
     prefs = Preferences.userNodeForPackage (this.getClass ());
     for (String raw : getParameters ().getRaw ())
       if (raw.equalsIgnoreCase ("-reset"))
         prefs.clear ();
 
-    if (false)
+    if (true)
     {
       String[] keys = prefs.keys ();
       Arrays.sort (keys);
@@ -220,7 +227,7 @@ public class Console extends Application
 
   private void setConsolePane (Screen screen, Site serverSite)
   {
-    consolePane = new ConsolePane (screen, serverSite, pluginsStage);
+    consolePane = new ConsolePane (screen, serverSite, pluginsStage, debug);
     Scene scene = new Scene (consolePane);
 
     primaryStage.setScene (scene);
@@ -251,7 +258,7 @@ public class Console extends Application
 
   private void setSpyPane (Screen screen, Site server, Site client)
   {
-    spyPane = new SpyPane (screen, server, client, telnetState);
+    spyPane = new SpyPane (screen, server, client, telnetState, debug);
 
     primaryStage.setScene (new Scene (spyPane));
     primaryStage.setTitle ("Terminal Spy");
@@ -329,6 +336,9 @@ public class Console extends Application
     return screen;
   }
 
+  public boolean getDebug() {
+	  return debug;
+  }
   public static void main (final String[] arguments)
   {
     Application.launch (arguments);

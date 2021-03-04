@@ -66,12 +66,15 @@ public class ConsolePane extends BorderPane
   private MenuItem menuItemConsoleLog;
 
   private final FontManager fontManager;
+  
+  private boolean debug;
 
-  public ConsolePane (Screen screen, Site server, PluginsStage pluginsStage)
+  public ConsolePane (Screen screen, Site server, PluginsStage pluginsStage, boolean debug)
   {
     this.screen = screen;
     this.telnetState = screen.getTelnetState ();
     this.server = server;
+    this.debug = debug;
 
     this.fontManager = screen.getFontManager ();
     pluginsStage.setConsolePane (this);
@@ -320,7 +323,7 @@ public class ConsolePane extends BorderPane
 
     telnetListener = new TelnetListener (screen, telnetState);
     terminalServer =
-        new TerminalServer (server.getURL (), server.getPort (), telnetListener);
+        new TerminalServer (server.getURL (), server.getPort (), telnetListener, debug);
     telnetState.setTerminalServer (terminalServer);
 
     terminalServerThread = new Thread (terminalServer);
