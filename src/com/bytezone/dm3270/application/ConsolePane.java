@@ -3,11 +3,20 @@ package com.bytezone.dm3270.application;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
 
 import com.bytezone.dm3270.application.Parameters.SiteParameters;
 import com.bytezone.dm3270.attributes.StartFieldAttribute;
 import com.bytezone.dm3270.commands.AIDCommand;
-import com.bytezone.dm3270.display.*;
+import com.bytezone.dm3270.display.CursorMoveListener;
+import com.bytezone.dm3270.display.Field;
+import com.bytezone.dm3270.display.FieldChangeListener;
+import com.bytezone.dm3270.display.FontManager;
+import com.bytezone.dm3270.display.HistoryManager;
+import com.bytezone.dm3270.display.HistoryScreen;
+import com.bytezone.dm3270.display.Screen;
+import com.bytezone.dm3270.display.ScreenDimensions;
 import com.bytezone.dm3270.extended.CommandHeader;
 import com.bytezone.dm3270.extended.TN3270ExtendedCommand;
 import com.bytezone.dm3270.plugins.PluginsStage;
@@ -23,7 +32,12 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Separator;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -312,7 +326,7 @@ public class ConsolePane extends BorderPane
 
   // called from Console.startSelectedFunction()
   // called from Terminal.start()
-  void connect ()
+  void connect (ExecutorService executorService)
   {
     if (server == null)
       throw new IllegalArgumentException ("Server must not be null");
@@ -322,12 +336,22 @@ public class ConsolePane extends BorderPane
     telnetState.setDoTerminalType (true);
 
     telnetListener = new TelnetListener (screen, telnetState);
-    terminalServer =
-        new TerminalServer (server.getURL (), server.getPort (), telnetListener, debug);
+    terminalServer = new TerminalServer (server.getURL (), server.getPort (), telnetListener, debug);
     telnetState.setTerminalServer (terminalServer);
 
-    terminalServerThread = new Thread (terminalServer);
-    terminalServerThread.start ();
+    ThreadFactory threadFactory;
+//    terminalServerThread = new Thread (terminalServer);
+//    terminalServerThread.start ();
+    terminalServer.setOnCancelled((cancelledEvent) -> {
+    	terminalServer.close();
+     });
+    terminalServer.setOnFailed((failedEvent) -> {
+    	terminalServer.close();
+     });
+    terminalServer.setOnSucceeded((succeededEvent) -> {
+    	terminalServer.close();
+     });
+    executorService.execute(terminalServer);
   }
 
   public void disconnect ()

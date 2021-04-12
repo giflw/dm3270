@@ -10,8 +10,10 @@ import com.bytezone.dm3270.telnet.TelnetCommand;
 import com.bytezone.dm3270.telnet.TelnetSubcommand;
 import com.bytezone.dm3270.utilities.Dm3270Utility;
 
+import javafx.concurrent.Task;
+
 // -----------------------------------------------------------------------------------//
-public class TelnetSocket implements Runnable
+public class TelnetSocket extends Task<Void>
 // -----------------------------------------------------------------------------------//
 {
   private static boolean debug = false;
@@ -226,4 +228,10 @@ public class TelnetSocket implements Runnable
   {
     return String.format ("TelnetSocket: Source=%s, name=%s", source, name);
   }
+
+@Override
+protected Void call() throws Exception {
+	run();
+	return null;
+}
 }

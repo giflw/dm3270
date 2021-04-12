@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 import com.bytezone.dm3270.streams.TelnetSocket.Source;
 import com.bytezone.dm3270.utilities.Dm3270Utility;
 
+import javafx.concurrent.Task;
+
 // -----------------------------------------------------------------------------------//
-public class TerminalServer implements Runnable
+public class TerminalServer extends Task<Void>
 // -----------------------------------------------------------------------------------//
 {
   private final int serverPort;
@@ -149,4 +151,10 @@ public class TerminalServer implements Runnable
   {
     return String.format ("TerminalSocket listening to %s : %d", serverURL, serverPort);
   }
+
+@Override
+public Void call() throws Exception {
+	run();
+	return null;
+}
 }

@@ -10,8 +10,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.bytezone.dm3270.display.ScreenDimensions;
 import com.bytezone.dm3270.telnet.TN3270ExtendedSubcommand.Function;
 
+import javafx.concurrent.Task;
+
 // -----------------------------------------------------------------------------------//
-public class TelnetState implements Runnable
+public class TelnetState extends Task<Void>
 // -----------------------------------------------------------------------------------//
 {
   private static final DateTimeFormatter formatter =
@@ -74,8 +76,8 @@ public class TelnetState implements Runnable
   // ---------------------------------------------------------------------------------//
   {
     this.terminalServer = terminalServer;
-    thread = new Thread (this);
-    thread.start ();
+//    thread = new Thread (this);
+//    thread.start ();
   }
 
   // ---------------------------------------------------------------------------------//
@@ -120,7 +122,7 @@ public class TelnetState implements Runnable
     long lastTimeIChecked;
     lastAccess = new AtomicLong (System.currentTimeMillis ());
     running = true;
-    long limit = 120;      // seconds to wait
+    long limit = 30;      // seconds to wait
 
     while (running)
     {
@@ -152,11 +154,11 @@ public class TelnetState implements Runnable
   public void close ()
   // ---------------------------------------------------------------------------------//
   {
-    if (thread != null)
-    {
+//    if (thread != null)
+//    {
       running = false;
-      thread.interrupt ();
-    }
+//      thread.interrupt ();
+//    }
   }
 
   // ---------------------------------------------------------------------------------//
@@ -209,7 +211,8 @@ public class TelnetState implements Runnable
   public void setDoes3270Extended (boolean state)
   // ---------------------------------------------------------------------------------//
   {
-    System.out.println ("Does Extended        : " + state);
+    if (debug)
+    	System.out.println ("Does Extended        : " + state);
     does3270Extended = state;
   }
 
@@ -217,7 +220,8 @@ public class TelnetState implements Runnable
   public void setDoesEOR (boolean state)
   // ---------------------------------------------------------------------------------//
   {
-    System.out.println ("Does EOR             : " + state);
+	if (debug)
+		System.out.println ("Does EOR             : " + state);
     doesEOR = state;
   }
 
@@ -225,7 +229,8 @@ public class TelnetState implements Runnable
   public void setDoesBinary (boolean state)
   // ---------------------------------------------------------------------------------//
   {
-    System.out.println ("Does Binary          : " + state);
+	    if (debug)
+	            System.out.println ("Does Binary          : " + state);
     doesBinary = state;
   }
 
@@ -233,7 +238,8 @@ public class TelnetState implements Runnable
   public void setDoesTerminalType (boolean state)
   // ---------------------------------------------------------------------------------//
   {
-    System.out.println ("Does Terminal type  : " + state);
+	    if (debug)
+	            System.out.println ("Does Terminal type  : " + state);
     doesTerminalType = state;
   }
 
@@ -241,7 +247,8 @@ public class TelnetState implements Runnable
   public void setTerminal (String terminal)
   // ---------------------------------------------------------------------------------//
   {
-    System.out.println ("Terminal            : " + terminal);
+	    if (debug)
+	            System.out.println ("Terminal            : " + terminal);
     this.terminal = terminal;
   }
 
@@ -462,4 +469,10 @@ public class TelnetState implements Runnable
     if (listeners.contains (listener))
       listeners.remove (listener);
   }
+
+	@Override
+	public Void call() throws Exception {
+		run();
+		return null;
+	}
 }
