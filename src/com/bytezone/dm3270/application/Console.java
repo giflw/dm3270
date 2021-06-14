@@ -115,7 +115,9 @@ public class Console extends Application {
 		primaryScreenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
 		if (false)
 			System.out.println(javafx.stage.Screen.getPrimary().getDpi());
-		if (false && host != null && port != 0) {
+		if (true && host != null) {
+			if (port <= 0)
+				port = 23;
 			Site site = new Site(host, host, port, true, 2, false, "");
 			setModel(site);
 			setConsolePane(createScreen(Function.TERMINAL, site), site);
