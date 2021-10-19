@@ -66,11 +66,15 @@ public class Console extends Application {
 //				  new ThreadFactoryBuilder().setNameFormat("my-sad-thread-%d").build();
 		executorService = Executors.newFixedThreadPool(5, threadFactory);
 
-		Parameters parameters = this.getParameters();
-
-		List<String> unnamed = parameters.getUnnamed();
-		if (unnamed.contains("debug"))
-			debug = true;
+    Parameters parameters = this.getParameters();
+    List<String> unnamed = parameters.getUnnamed();
+    if (unnamed.contains("-debug"))
+    	debug = true;
+    	
+    prefs = Preferences.userNodeForPackage (this.getClass ());
+    for (String raw : getParameters ().getRaw ())
+      if (raw.equalsIgnoreCase ("-reset"))
+        prefs.clear ();
 
 		Map<String, String> named = parameters.getNamed();
 		for (Map.Entry<String, String> entry : named.entrySet()) {
