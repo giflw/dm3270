@@ -321,7 +321,7 @@ public class ConsolePane extends BorderPane
     telnetState.setDo3270Extended (server.getExtended ());
     telnetState.setDoTerminalType (true);
 
-    telnetListener = new TelnetListener (screen, telnetState);
+    telnetListener = new TelnetListener (screen, telnetState, debug);
     terminalServer =
         new TerminalServer (server.getURL (), server.getPort (), telnetListener, debug);
     telnetState.setTerminalServer (terminalServer);

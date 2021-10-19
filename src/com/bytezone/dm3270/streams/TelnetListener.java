@@ -63,7 +63,7 @@ public class TelnetListener implements BufferListener, TelnetCommandProcessor
 
   // Use this when not recording the session and running in TERMINAL mode.
   // ---------------------------------------------------------------------------------//
-  public TelnetListener (Screen screen, TelnetState telnetState)
+  public TelnetListener (Screen screen, TelnetState telnetState, boolean debug)
   // ---------------------------------------------------------------------------------//
   {
     this.screen = screen;
@@ -72,6 +72,7 @@ public class TelnetListener implements BufferListener, TelnetCommandProcessor
 
     this.source = Source.SERVER;                  // listening to a server
     this.session = null;
+    this.debug = debug;
 
     assert function == Function.TERMINAL;
   }
@@ -100,6 +101,7 @@ public class TelnetListener implements BufferListener, TelnetCommandProcessor
 
     if (function == Function.TERMINAL)
       telnetState.setLastAccess (dateTime, buffer.length);
+  
   }
 
   // ---------------------------------------------------------------------------------//

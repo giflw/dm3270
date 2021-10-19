@@ -60,7 +60,7 @@ public class Console extends Application
 
     Parameters parameters = this.getParameters();
     List<String> unnamed = parameters.getUnnamed();
-    if (unnamed.contains("debug"))
+    if (unnamed.contains("-debug"))
     	debug = true;
     	
     prefs = Preferences.userNodeForPackage (this.getClass ());
